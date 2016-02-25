@@ -278,7 +278,7 @@ class CreatingItemsAdminTest extends AdminTestCase
         $this->clickCreateNewItem();
         $this->assertEquals("off", $this->getValue("editval[active]"));
         $this->check("editval[active]");
-        $this->type("editval[abbr]", "aa_bb");
+        $this->type("editval[abbr]", "fr");
         $this->type("editval[desc]", "Language_šÄßüл");
         $this->assertEquals("off", $this->getValue("editval[default]"));
         $this->check("editval[default]");
@@ -289,24 +289,24 @@ class CreatingItemsAdminTest extends AdminTestCase
         $this->assertTextPresent("Please don't forget to update the database views under Service->Tools");
         $this->assertTextPresent("Attention: No language files were found in templates dir for selected language!");
         $this->frame("list");
-        $this->assertEquals("aa_bb", $this->getText("//tr[@id='row.3']/td[2]"));
+        $this->assertEquals("fr", $this->getText("//tr[@id='row.3']/td[2]"));
         $this->assertEquals("Language_šÄßüл", $this->getText("//tr[@id='row.3']/td[3]"));
         $this->assertElementNotPresent("//tr[@id='row.1']/td[3]/div/a/b");
         $this->assertElementNotPresent("//tr[@id='row.2']/td[3]/div/a/b");
         //$this->assertElementNotPresent("//tr[@id='row.3']/td[3]/div/a/b");
         $this->assertElementPresent("//tr[@id='row.3']/td[3]/div/a/b");
         $this->frame("edit");
-        $this->assertEquals("aa_bb", $this->getValue("editval[abbr]"));
+        $this->assertEquals("fr", $this->getValue("editval[abbr]"));
         $this->assertEquals("Language_šÄßüл", $this->getValue("editval[desc]"));
         $this->assertEquals("http://base.url", $this->getValue("editval[baseurl]"));
         $this->assertEquals("https://base.url", $this->getValue("editval[basesslurl]"));
         $this->assertEquals("on", $this->getValue("editval[active]"));
         $this->assertEquals("on", $this->getValue("editval[default]"));
         $this->assertEquals("99999", $this->getValue("editval[sort]")); //default filled value
-        $this->assertEquals("2", $this->getText("//form[@id='myedit']/table/tbody/tr/td/table/tbody/tr[7]/td[2]"));
+        $this->assertEquals("fr", $this->getText("//form[@id='myedit']/table/tbody/tr/td/table/tbody/tr[7]/td[2]"));
         $this->uncheck("editval[active]");
         $this->uncheck("editval[default]");
-        $this->type("editval[abbr]", "bb_aa");
+        $this->type("editval[abbr]", "fr");
         $this->type("editval[desc]", "Language_šÄßüл1");
         $this->type("editval[baseurl]", "http://base1.url");
         $this->type("editval[basesslurl]", "https://base1.url");
@@ -314,14 +314,14 @@ class CreatingItemsAdminTest extends AdminTestCase
         $this->clickAndWaitFrame("saveArticle", "list");
         $this->assertEquals("off", $this->getValue("editval[active]"));
         $this->assertEquals("on", $this->getValue("editval[default]")); //default lang cant be unchecked.
-        $this->assertEquals("bb_aa", $this->getValue("editval[abbr]"));
+        $this->assertEquals("fr", $this->getValue("editval[abbr]"));
         $this->assertEquals("Language_šÄßüл1", $this->getValue("editval[desc]"));
         $this->assertEquals("http://base1.url", $this->getValue("editval[baseurl]"));
         $this->assertEquals("https://base1.url", $this->getValue("editval[basesslurl]"));
         $this->assertEquals("1", $this->getValue("editval[sort]"));
         //creating another language with existing Abbreviation
         $this->clickCreateNewItem();
-        $this->type("editval[abbr]", "bb_aa");
+        $this->type("editval[abbr]", "fr");
         $this->type("editval[desc]", "language_2");
         $this->clickAndWaitFrame("saveArticle", "edit");
         $this->assertTextPresent("Error: a language with this abbreviation already exists!");
@@ -330,7 +330,7 @@ class CreatingItemsAdminTest extends AdminTestCase
         $this->openListItem("link=Language_šÄßüл1");
         $this->assertEquals("off", $this->getValue("editval[active]"));
         $this->assertEquals("on", $this->getValue("editval[default]")); //default lang cant be unchecked.
-        $this->assertEquals("bb_aa", $this->getValue("editval[abbr]"));
+        $this->assertEquals("fr", $this->getValue("editval[abbr]"));
         $this->assertEquals("Language_šÄßüл1", $this->getValue("editval[desc]"));
         $this->assertEquals("http://base1.url", $this->getValue("editval[baseurl]"));
         $this->assertEquals("https://base1.url", $this->getValue("editval[basesslurl]"));
@@ -348,9 +348,9 @@ class CreatingItemsAdminTest extends AdminTestCase
         $this->assertEquals("English", $this->getText("//tr[@id='row.2']/td[3]"));
         $this->assertEquals("Language_šÄßüл1", $this->getText("//tr[@id='row.3']/td[3]"));
         $this->clickAndWait("link=Abbreviation");
-        $this->assertEquals("bb_aa", $this->getText("//tr[@id='row.1']/td[2]/div"));
-        $this->assertEquals("de", $this->getText("//tr[@id='row.2']/td[2]/div"));
-        $this->assertEquals("en", $this->getText("//tr[@id='row.3']/td[2]/div"));
+        $this->assertEquals("de", $this->getText("//tr[@id='row.1']/td[2]/div"));
+        $this->assertEquals("en", $this->getText("//tr[@id='row.2']/td[2]/div"));
+        $this->assertEquals("fr", $this->getText("//tr[@id='row.3']/td[2]/div"));
         $this->clickAndWaitFrame("link=Active");
         $this->assertEquals("", $this->getText("//tr[@id='row.2']/td[1]/div"));
         $this->assertElementPresent("//tr[@id='row.1']/td[@class='listitem active']");
@@ -367,10 +367,10 @@ class CreatingItemsAdminTest extends AdminTestCase
         $this->assertEquals("Deutsch", $this->getText("//tr[@id='row.1']/td[3]"));
         $this->assertEquals("English", $this->getText("//tr[@id='row.2']/td[3]"));
         $this->assertElementNotPresent("//tr[@id='row.3']");
-        //trying to delete lang with id = 0. it must be impossible
+        //No checkbox available for deleting default language
         $this->clickDeleteListItem(1);
-        $this->assertTextPresent("Attention: you can't delete main language (with ID = 0)!");
-        $this->assertElementPresent("link=Deutsch");
+        $this->assertElementNotPresent("del.1");
+        $this->assertElementNotPresent("del.2");
     }
 
     /**

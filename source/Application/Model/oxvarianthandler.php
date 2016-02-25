@@ -148,7 +148,9 @@ class oxVariantHandler extends oxSuperCfg
         $aVarselect = array(); //multilanguage names of existing variants
         //iterating through all select list values (eg. $oValue->name = S, M, X, XL)
         for ($i = 0; $i < count($aValues); $i++) {
-            $oValue = $aValues[$i][0];
+            //NOTE: price mod is always taken from base langage (former language id 0),
+            //means price mod by language is not possible at the moment (TODO?)
+            $oValue = $aValues[$i][$myLang->getBaseLanguage()];
             $dPriceMod = $this->_getValuePrice($oValue, $oArticle->oxarticles__oxprice->value);
             if ($oVariants->count() > 0) {
                 //if we have any existing variants then copying each variant with $oValue->name

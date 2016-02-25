@@ -28,6 +28,13 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class PrivateSalesFrontendTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Basket exclusion: situation 1
      *
      * @group privateSales

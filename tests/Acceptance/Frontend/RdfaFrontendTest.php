@@ -27,6 +27,13 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class RdfaFrontendTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Testing RDFa. Business entity
      * @group rdfa
      */

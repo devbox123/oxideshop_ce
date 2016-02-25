@@ -28,6 +28,13 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class ProductInfoFrontendTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Orders: buying more items than available
      *
      * @group product
@@ -70,7 +77,7 @@ class ProductInfoFrontendTest extends FrontendTestCase
         //product info
         $this->_assertArticle('Test product 1 [EN] šÄßüл', 'Test product 1 short desc [EN] šÄßüл', '1001', '100,00 € *');
         $this->assertTextPresent("%MESSAGE_NOT_ON_STOCK%");
-        
+
         $this->assertTextPresent("%AVAILABLE_ON% 2008-01-01");
         $this->assertElementPresent("productSelections");
         $this->assertElementPresent("//div[@id='productSelections']//ul");
@@ -214,7 +221,7 @@ class ProductInfoFrontendTest extends FrontendTestCase
         $this->assertElementPresent("//a[text()='Kite CORE GTS ']");
         $this->assertElementPresent("productPrice_3");
         $this->assertElementPresent("//a[text()='Harness MADTRIXX ']");
-        
+
         $this->clickAndWait("link=%HOME%");
         $this->clickAndWait('removeCmp_newItems_1');
         $this->searchFor("1");
@@ -228,7 +235,7 @@ class ProductInfoFrontendTest extends FrontendTestCase
         $this->assertElementNotPresent('productPrice_1');
         $this->assertElementNotPresent('productPrice_2');
         $this->assertElementNotPresent('productPrice_3');
-        
+
         $this->assertTextPresent("%MESSAGE_SELECT_AT_LEAST_ONE_PRODUCT%");
     }
 

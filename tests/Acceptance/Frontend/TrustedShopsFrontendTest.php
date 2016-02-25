@@ -29,6 +29,13 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class TrustedShopsFrontendTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Check if tests should be skipped.
      */
     protected function setUp()

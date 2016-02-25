@@ -32,6 +32,13 @@ use oxRegistry;
 class ShopSetUpTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * How much more time wait for these tests
      */
     protected $_iWaitTimeMultiplier = 7;

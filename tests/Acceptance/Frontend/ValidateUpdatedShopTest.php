@@ -27,6 +27,13 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class ValidateUpdatedShopTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * @var bool
      */
     protected $_blStartMinkSession = false;

@@ -31,13 +31,20 @@ use OxidEsales\Eshop\Tests\Acceptance\AcceptanceTestCase;
 class InternationalTest extends AcceptanceTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Sets up default environment for tests.
      */
     protected function setUp()
     {
         parent::setUp();
 
-        $this->setTranslator(new \OxidEsales\TestingLibrary\Translator(0));
+        $this->setTranslator(new \OxidEsales\TestingLibrary\Translator($this->translateLanguageId));
     }
 
     /* -------------------------- Admin side only functions ------------------------ */

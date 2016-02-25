@@ -29,12 +29,19 @@ use OxidEsales\Eshop\Tests\Acceptance\AdminTestCase;
 class FunctionalityInAdminTest extends AdminTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Sets default language to English.
      */
     protected function setUp()
     {
         parent::setUp();
-        $this->getTranslator()->setLanguage('de');
+        $this->getTranslator()->setLanguage($this->translateLanguageId);
     }
 
     /**

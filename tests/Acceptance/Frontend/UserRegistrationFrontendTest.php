@@ -28,6 +28,13 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class UserRegistrationFrontendTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * simple user account opening
      *
      * @group main

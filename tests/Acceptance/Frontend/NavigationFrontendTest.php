@@ -29,12 +29,19 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class NavigationFrontendTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Sets default language to English.
      */
     protected function setUp()
     {
         parent::setUp();
-        $this->getTranslator()->setLanguage('en');
+        $this->getTranslator()->setLanguage($this->translateLanguageId);
     }
 
     /**
@@ -486,9 +493,9 @@ class NavigationFrontendTest extends FrontendTestCase
         $this->assertEquals("The latest news... %MORE%%ELLIPSIS%", $this->clearString($this->getText("//div[@id='newsBox']//li[1]")));
         $this->assertElementNotPresent("//div[@id='newsBox']//li[2]");
         //Delete new from database where short description is News
-        $sOxid = (oxDb::getDb()->getOne("SELECT oxid FROM oxnews WHERE OXSHORTDESC = 'News'"));
-        $this->assertFalse(is_null($sOxid), "Oxid was not found in database for OXSHORTDESC='News'");
-        $this->callShopSC("oxNews", "delete", $sOxid, null, null, 1);
+        $sOxid = (oxDb::getDb()->getOne("SELECT oxid FROM oxnews WHERE OXSHORTDESC_DE = 'News'"));
+        $this->assertFalse(is_null($sOxid), "Oxid was not found in database for OXSHORTDESC_DE='News'");
+        $this->callShopSC("oxNews", "delete", $sOxid, null, null, 'en');
         $this->clearCache();
         $this->openShop();
         $this->assertElementNotPresent("newsBox");
@@ -1448,7 +1455,7 @@ class NavigationFrontendTest extends FrontendTestCase
     {
         //activating CMS pages as categories
         //TODO: Selenium refactor to remove SQL's executions
-        $this->executeSql("UPDATE `oxcontents` SET `OXACTIVE`=1, `OXACTIVE_1`=1 WHERE `OXID` = 'testcontent1' OR `OXID` = 'testcontent2' OR `OXID` = 'oxsubshopcontent1' OR `OXID` = 'oxsubshopcontent2'");
+        $this->executeSql("UPDATE `oxcontents` SET `OXACTIVE_DE`=1, `OXACTIVE_EN`=1 WHERE `OXID` = 'testcontent1' OR `OXID` = 'testcontent2' OR `OXID` = 'oxsubshopcontent1' OR `OXID` = 'oxsubshopcontent2'");
 
         //cms as root category
         $this->clearCache();

@@ -28,12 +28,19 @@ use OxidEsales\Eshop\Tests\Acceptance\FrontendTestCase;
 class BasketFrontendTest extends FrontendTestCase
 {
     /**
+     * Language id.
+     *
+     * @var string
+     */
+    protected $translateLanguageId = 'en';
+
+    /**
      * Sets default language to English.
      */
     protected function setUp()
     {
         parent::setUp();
-        $this->getTranslator()->setLanguage('en');
+        $this->getTranslator()->setLanguage($this->translateLanguageId);
     }
 
     /**
@@ -169,7 +176,7 @@ class BasketFrontendTest extends FrontendTestCase
     public function testFrontendMinOrderSum()
     {
         //TODO: Selenium refactor to remove SQL's executions
-        $this->executeSql("UPDATE `oxdelivery` SET `OXTITLE_1` = `OXTITLE` WHERE `OXTITLE_1` = '';");
+        $this->executeSql("UPDATE `oxdelivery` SET `OXTITLE_EN` = `OXTITLE_DE` WHERE `OXTITLE_EN` = '';");
         $this->addToBasket( "1000" );
 
         //min order sum is 49 €
@@ -416,7 +423,7 @@ class BasketFrontendTest extends FrontendTestCase
         $this->assertEquals("2", $this->getValue("am_1"));
         $this->assertEquals("test label šÄßüл 1", $this->getValue("//tr[@id='cartItem_2']/td[3]/p/input"));
         $this->assertEquals("1", $this->getValue("am_4"));
-        $this->assertElementNotPresent("cartItem_5");
+        $this->assertElementNotPresent("cartItem_5"); sleep(120);
 
         // Submitting order
         $this->_continueToNextStep(2);
@@ -471,7 +478,7 @@ class BasketFrontendTest extends FrontendTestCase
     public function testFrontendMyAccountOrdersHistory()
     {
         //TODO: Selenium refactor to remove SQL's executions
-        $this->executeSql("UPDATE `oxdelivery` SET `OXTITLE_1` = `OXTITLE` WHERE `OXTITLE_1` = '';");
+        $this->executeSql("UPDATE `oxdelivery` SET `OXTITLE_EN` = `OXTITLE_DE` WHERE `OXTITLE_EN` = '';");
         $this->_createOrder();
         $this->openShop();
         $this->loginInFrontend("example_test@oxid-esales.dev", "useruser");
