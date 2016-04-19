@@ -1142,7 +1142,7 @@ INSERT INTO `oxcountry` (`OXID`, `OXACTIVE`, `OXTITLE`, `OXISOALPHA2`, `OXISOALP
 ('8f241f110968d3f03.13630334', 0, 'Vanuatu', 'VU', 'VUT', '548', 'VU', 9999, 'Rest Welt', '', 'Vanuatu', '', '', 'Rest World', '', '', '', '', '', 0),
 ('8f241f110968ebc30.63792746', 0, 'Heiliger Stuhl (Vatikanstadt)', 'VA', 'VAT', '336', 'VA', 9999, 'Europa', '', 'Holy See (Vatican City State)', '', '', 'Europe', '', '', '', '', '', 0),
 ('8f241f11096902d92.14742486', 0, 'Venezuela', 'VE', 'VEN', '862', 'VE', 9999, 'Rest Welt', '', 'Venezuela', '', '', 'Rest World', '', '', '', '', '', 0),
-('8f241f11096919d00.92534927', 0, 'Vietnam', 'VN', 'VNM', '704', 'VN', 9999, 'Rest Welt', '', 'Viet Nam', '', '', 'Rest World', '', '', '', '', '', 0),
+('8f241f11096919d00.92534927', 0, 'Vietnam', 'VN', 'VNM', '704', 'VN', 9999, 'Rest Welt', '', 'Vietnam', '', '', 'Rest World', '', '', '', '', '', 0),
 ('8f241f1109692fc04.15216034', 0, 'Britische Jungferninseln', 'VG', 'VGB', '92', 'VG', 9999, 'Rest Welt', '', 'Virgin Islands, British', '', '', 'Rest World', '', '', '', '', '', 0),
 ('8f241f11096944468.61956573', 0, 'Amerikanische Jungferninseln', 'VI', 'VIR', '850', 'VI', 9999, 'Rest Welt', '', 'Virgin Islands, U.S.', '', '', 'Rest World', '', '', '', '', '', 0),
 ('8f241f110969598c8.76966113', 0, 'Wallis und Futuna', 'WF', 'WLF', '876', 'WF', 9999, 'Rest Welt', '', 'Wallis and Futuna', '', '', 'Rest World', '', '', '', '', '', 0),
@@ -2397,6 +2397,7 @@ CREATE TABLE `oxtplblocks` (
   `OXID`        char(32) character set latin1 collate latin1_general_ci NOT NULL COMMENT 'Block id',
   `OXACTIVE`    tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Is active',
   `OXSHOPID`    char(32) character set latin1 collate latin1_general_ci NOT NULL COMMENT 'Shop id (oxshops)',
+  `OXTHEME`     char(128) character set latin1 collate latin1_general_ci NOT NULL COMMENT 'Shop theme id',
   `OXTEMPLATE`  char(255) character set latin1 collate latin1_general_ci NOT NULL COMMENT 'Template filename (with rel. path), where block is located',
   `OXBLOCKNAME` char(128) character set latin1 collate latin1_general_ci NOT NULL COMMENT 'Block name',
   `OXPOS`       int  NOT NULL COMMENT 'Sorting',
@@ -2404,7 +2405,8 @@ CREATE TABLE `oxtplblocks` (
   `OXMODULE`    char(32) character set latin1 collate latin1_general_ci NOT NULL COMMENT 'Module, which uses this template',
   `OXTIMESTAMP` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP COMMENT 'Timestamp',
   PRIMARY KEY (`OXID`),
-  INDEX `search` (`OXACTIVE`, `OXTEMPLATE`, `OXPOS`)
+  INDEX `search` (`OXACTIVE`, `OXTEMPLATE`, `OXPOS`),
+  INDEX `oxtheme` (`OXTHEME`)
 ) ENGINE=MyISAM COMMENT 'Module template blocks';
 
 INSERT INTO `oxtplblocks` (`OXID`, `OXACTIVE`, `OXSHOPID`, `OXTEMPLATE`, `OXBLOCKNAME`, `OXPOS`, `OXFILE`, `OXMODULE`) VALUES

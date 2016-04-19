@@ -557,8 +557,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
 
         // enabled time range check ?
         if ($this->config->getConfigParam('blUseTimeCheck')) {
-            $sDate = date('Y-m-d H:i:s', oxRegistry::get("oxUtilsDate")->getTime());
-            $sQ = "( $sQ or ( $sTable.oxactivefrom < '$sDate' and $sTable.oxactiveto > '$sDate' ) ) ";
+            $sQ = $this->addSqlActiveRangeSnippet($sQ,$sTable);
         }
 
         return $sQ;
@@ -589,12 +588,11 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
             $sQ = " and ( $sTable.oxstockflag != 2 or ( $sTable.oxstock + $sTable.oxvarstock ) > 0  ) ";
             //V #M513: When Parent article is not purchasable, it's visibility should be displayed in shop only if any of Variants is available.
             if (!$myConfig->getConfigParam('blVariantParentBuyable')) {
-                $sTimeCheckQ = '';
+                $activeCheck = 'art.oxactive = 1';
                 if ($myConfig->getConfigParam('blUseTimeCheck')) {
-                    $sDate = date('Y-m-d H:i:s', oxRegistry::get("oxUtilsDate")->getTime());
-                    $sTimeCheckQ = " or ( art.oxactivefrom < '$sDate' and art.oxactiveto > '$sDate' )";
+                    $activeCheck = $this->addSqlActiveRangeSnippet($activeCheck,'art');
                 }
-                $sQ = " $sQ and IF( $sTable.oxvarcount = 0, 1, ( select 1 from $sTable as art where art.oxparentid=$sTable.oxid and ( art.oxactive = 1 $sTimeCheckQ ) and ( art.oxstockflag != 2 or art.oxstock > 0 ) limit 1 ) ) ";
+                $sQ = " $sQ and IF( $sTable.oxvarcount = 0, 1, ( select 1 from $sTable as art where art.oxparentid=$sTable.oxid and $activeCheck and ( art.oxstockflag != 2 or art.oxstock > 0 ) limit 1 ) ) ";
             }
         }
 
@@ -1072,6 +1070,9 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
 
         // load object from database
         parent::assign($aRecord);
+
+        //clear seo urls
+        $this->_aSeoUrls = array();
 
         $this->oxarticles__oxnid = $this->oxarticles__oxid;
 

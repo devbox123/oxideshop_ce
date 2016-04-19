@@ -20,6 +20,9 @@
  * @version   OXID eShop CE
  */
 
+use OxidEsales\Eshop\Core\Module\ModuleTemplatePathCalculator;
+use OxidEsales\Eshop\Core\Registry;
+
 class modForTestGetBaseTplDirExpectsDefault extends oxConfig
 {
     public function init()
@@ -1202,6 +1205,48 @@ class Unit_Core_oxconfigTest extends OxidTestCase
     }
 
     /**
+     * Test if correct template path is returned if template found in module template configurations
+     */
+    public function testGetModuleTemplatePath()
+    {
+        $expected = 'moduleTemplatePath';
+
+        // tell module template calculator to give good result
+        $moduleTemplateCalculatorStub = $this->getMock(ModuleTemplatePathCalculator::class, ['calculateModuleTemplatePath']);
+        $moduleTemplateCalculatorStub->method('calculateModuleTemplatePath')->willReturn($expected);
+
+        // imitate config with empty getDir response
+        $configStub = $this->getMock(oxConfig::class, ['getDir', 'getModuleTemplatePathCalculator']);
+        $configStub->method('getModuleTemplatePathCalculator')->willReturn($moduleTemplateCalculatorStub);
+
+        // test if returns correct template
+        $actual = $configStub->getTemplatePath('someTemplateName.tpl', true);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test if correct template path is returned if template is Not found in module template configurations
+     */
+    public function testGetModuleTemplatePathCalculatorException()
+    {
+        $expected = '';
+
+        // tell module template calculator to give good result
+        $moduleTemplateCalculatorStub = $this->getMock(ModuleTemplatePathCalculator::class, ['calculateModuleTemplatePath']);
+        $moduleTemplateCalculatorStub->method('calculateModuleTemplatePath')->willThrowException(oxNew('oxException', 'Some calculator exception'));
+
+        // imitate config with empty getDir response
+        $configStub = $this->getMock(oxConfig::class, ['getDir', 'getModuleTemplatePathCalculator']);
+        $configStub->method('getModuleTemplatePathCalculator')->willReturn($moduleTemplateCalculatorStub);
+
+        // test if returns correct template
+        $actual = $configStub->getTemplatePath('someTemplateName.tpl', true);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
      * Testing getAbsDynImageDir getter
      */
     public function testGetTranslationsDir()
@@ -1986,25 +2031,6 @@ class Unit_Core_oxconfigTest extends OxidTestCase
         $this->assertEquals($expectedResult, $realResult);
     }
 
-    public function testCheckIfReadable()
-    {
-        $filePath = 'somedir/somefile.txt';
-
-        $vfsStreamWrapper = $this->getVfsStreamWrapper();
-        $vfsStreamWrapper->createFile('somedir/somefile.txt', '');
-        $testDir = $vfsStreamWrapper->getRootPath();
-
-        $config = oxNew('oxConfig');
-        $this->assertTrue($config->checkIfReadable($testDir . '/' . $filePath));
-
-        if (version_compare(PHP_VERSION, '5.5') >= 0) {
-            chmod($testDir . '/' . $filePath, 0000);
-            $this->assertFalse($config->checkIfReadable($testDir . '/' . $filePath));
-        }
-
-        $this->assertFalse($config->checkIfReadable($testDir . '/notexists.txt'));
-    }
-
     public function testGetOutDir()
     {
         $oConfig = oxNew('oxConfig');
@@ -2521,6 +2547,18 @@ class Unit_Core_oxconfigTest extends OxidTestCase
         oxRegistry::set('oxUtilsServer', $oUtilsServer);
 
         $this->assertFalse($this->getConfig()->isCurrentUrl($sURLToCheck));
+    }
+
+    public function testReinitialize()
+    {
+        $config = oxNew('oxConfig');
+        $config->init();
+
+        oxNew('oxConfig')->saveShopConfVar('string', 'testReinitialize', 'testReinitialize');
+
+        $config->reinitialize();
+
+        $this->assertEquals('testReinitialize', $config->getConfigParam('testReinitialize'));
     }
 
     /**

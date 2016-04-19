@@ -246,6 +246,9 @@ class oxCategory extends oxI18n implements oxIUrl
     {
         $this->_iNrOfArticles = null;
 
+        //clear seo urls
+        $this->_aSeoUrls = array();
+
         return parent::assign($dbRecord);
     }
 
