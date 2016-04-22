@@ -1122,7 +1122,7 @@ class SystemRequirements extends SuperConfig
      * returned array components are of form array(module name, block name, template file)
      * only active (oxactive==1) blocks are checked
      *
-     * @todo extract oxtemplate query to ModuleTemplateBlockRepository
+     * @todo extract oxtplblocks query to ModuleTemplateBlockRepository
      *
      * @return array
      */

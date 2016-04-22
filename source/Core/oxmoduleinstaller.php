@@ -255,7 +255,7 @@ class oxModuleInstaller extends oxSuperCfg
     /**
      * Deactivates or activates oxBlocks of a module
      *
-     * @todo extract oxtemplate query to ModuleTemplateBlockRepository
+     * @todo extract oxtplblocks query to ModuleTemplateBlockRepository
      *
      * @param string $sModuleId Module id
      */
@@ -386,7 +386,7 @@ class oxModuleInstaller extends oxSuperCfg
     /**
      * Add module templates to database.
      *
-     * @todo extract oxtemplate query to ModuleTemplateBlockRepository
+     * @todo extract oxtplblocks query to ModuleTemplateBlockRepository
      *
      * @param array  $moduleBlocks Module blocks array
      * @param string $moduleId     Module id
