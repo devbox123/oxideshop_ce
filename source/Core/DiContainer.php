@@ -73,11 +73,13 @@ class DiContainer implements ContainerInterface
 
         //basic setup
         $container
-            ->register(static::CONTAINER_CORE_REQUEST, Request::class);
+            //->register(static::CONTAINER_CORE_REQUEST, Request::class);
+            ->register(static::CONTAINER_CORE_REQUEST, SymfonyRequest::class);
 
         //basic setup
         $container
-            ->register(static::CONTAINER_CORE_SESSION, \oxSession::class)
+            //->register(static::CONTAINER_CORE_SESSION, \oxSession::class)
+            ->register(static::CONTAINER_CORE_SESSION, SymfonySession::class)
             ->addArgument(new Reference(static::CONTAINER_CORE_CONFIG));
     }
 

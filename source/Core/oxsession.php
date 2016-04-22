@@ -20,12 +20,14 @@
  * @version   OXID eShop CE
  */
 
+use OxidEsales\Eshop\Core\oxSessionInterface;
+
 /**
  * Session manager.
  * Performs session managing function, such as variables deletion,
  * initialisation and other session functions.
  */
-class oxSession extends oxSuperCfg
+class oxSession implements oxSessionInterface //extends oxSuperCfg
 {
 
     /**
@@ -143,9 +145,9 @@ class oxSession extends oxSuperCfg
      */
     protected $_aPersistentParams = array("actshop", "lang", "currency", "language", "tpllanguage");
 
-    public function __construct($config)
+    public function __construct()//$config)
     {
-        parent::__construct($config);
+        //parent::__construct($config);
         $this->start();
     }
 
@@ -204,17 +206,17 @@ class oxSession extends oxSuperCfg
      */
     public function start()
     {
-        $myConfig = $this->config;
+        //$myConfig = $this->config;
         $sid = null;
 
-        if ($this->isAdmin()) {
-            $this->setName("admin_sid");
-        } else {
+        //if ($this->isAdmin()) {
+        //    $this->setName("admin_sid");
+        //} else {
             $this->setName("sid");
-        }
+        //}
 
-        $sForceSidParam = $myConfig->getRequestParameter($this->getForcedName());
-        $sSidParam = $myConfig->getRequestParameter($this->getName());
+        $sForceSidParam = null;//$myConfig->getRequestParameter($this->getForcedName());
+        $sSidParam = null;//$myConfig->getRequestParameter($this->getName());
 
         //forcing sid for SSL<->nonSSL transitions
         if ($sForceSidParam) {
@@ -413,7 +415,7 @@ class oxSession extends oxSuperCfg
     public function freeze()
     {
         // storing basket ..
-        $this->setVariable($this->_getBasketName(), serialize($this->getBasket()));
+        //$this->setVariable($this->_getBasketName(), serialize($this->getBasket()));
 
         session_write_close();
     }
@@ -506,13 +508,13 @@ class oxSession extends oxSuperCfg
             $sRet = ($blForceSid ? $this->getForcedName() : $this->getName()) . "=" . $this->getId();
         }
 
-        if ($this->isAdmin()) {
+        /*if ($this->isAdmin()) {
             // admin mode always has to have token
             if ($sRet) {
                 $sRet .= '&amp;';
             }
             $sRet .= 'stoken=' . $this->getSessionChallengeToken() . $this->getShopUrlId();
-        }
+        }*/
 
         return $sRet;
     }
@@ -634,10 +636,10 @@ class oxSession extends oxSuperCfg
      * @return bool
      */
     public function isSidNeeded($sUrl = null)
-    {
-        if ($this->isAdmin()) {
+    {return true;
+        /*if ($this->isAdmin()) {
             return true;
-        }
+        }*/
 
         $oConfig = $this->config;
 
@@ -755,7 +757,7 @@ class oxSession extends oxSuperCfg
      */
     protected function _forceSessionStart()
     {
-        return (!oxRegistry::getUtils()->isSearchEngine()) && ((( bool ) $this->config->getConfigParam('blForceSessionStart')) || $this->config->getRequestParameter("su") || $this->_blForceNewSession);
+        return false;//(!oxRegistry::getUtils()->isSearchEngine()) && ((( bool ) $this->config->getConfigParam('blForceSessionStart')) || $this->config->getRequestParameter("su") || $this->_blForceNewSession);
     }
 
     /**
@@ -769,22 +771,22 @@ class oxSession extends oxSuperCfg
         $myConfig = $this->config;
 
         // special handling only in non-admin mode
-        if (!$this->isAdmin()) {
-            if (oxRegistry::getUtils()->isSearchEngine() || $myConfig->getRequestParameter('skipSession')) {
+        if (true) {//!$this->isAdmin()) {
+            if (oxRegistry::getUtils()->isSearchEngine() /*|| $myConfig->getRequestParameter('skipSession')*/) {
                 $blAllowSessionStart = false;
-            } elseif (oxRegistry::get("oxUtilsServer")->getOxCookie('oxid_' . $myConfig->getShopId() . '_autologin') === '1') {
-                $blAllowSessionStart = true;
+            //} elseif (oxRegistry::get("oxUtilsServer")->getOxCookie('oxid_' . $myConfig->getShopId() . '_autologin') === '1') {
+            //    $blAllowSessionStart = true;
             } elseif (!$this->_forceSessionStart() && !oxRegistry::get("oxUtilsServer")->getOxCookie('sid_key')) {
 
                 // session is not needed to start when it is not necessary:
                 // - no sid in request and also user executes no session connected action
                 // - no cookie set and user executes no session connected action
-                if (!oxRegistry::get("oxUtilsServer")->getOxCookie($this->getName()) &&
+                /*if (!oxRegistry::get("oxUtilsServer")->getOxCookie($this->getName()) &&
                     !($myConfig->getRequestParameter($this->getName()) || $myConfig->getRequestParameter($this->getForcedName())) &&
                     !$this->_isSessionRequiredAction()
                 ) {
                     $blAllowSessionStart = false;
-                }
+                }*/
             }
         }
 
@@ -939,10 +941,10 @@ class oxSession extends oxSuperCfg
      */
     protected function _getBasketName()
     {
-        $myConfig = $this->config;
-        if ($myConfig->getConfigParam('blMallSharedBasket') == 0) {
+        //$myConfig = $this->config;
+        /*if ($myConfig->getConfigParam('blMallSharedBasket') == 0) {
             return $myConfig->getShopId() . "_basket";
-        }
+        }*/
 
         return "basket";
     }
@@ -1010,7 +1012,7 @@ class oxSession extends oxSuperCfg
      */
     protected function _getSessionUseCookies()
     {
-        return $this->isAdmin() || $this->config->getConfigParam('blSessionUseCookies');
+        return true;//$this->isAdmin() || $this->config->getConfigParam('blSessionUseCookies');
     }
 
     /**

@@ -364,7 +364,8 @@ class oxcmp_user extends oxView
 
             $this->resetPermissions();
 
-            if ($this->getParent()->isEnabledPrivateSales()) {
+            $parent = $this->getParent();
+            if ($parent && $parent->isEnabledPrivateSales()) {
                 return 'account';
             }
 

@@ -642,7 +642,7 @@ class oxUtilsView extends oxSuperCfg implements ViewInterface
     private function formListOfDuplicatedBlocks($activeBlockTemplates)
     {
         $templateBlocksToExchange = array();
-        $customThemeId = $this->getConfig()->getConfigParam('sCustomTheme');
+        $customThemeId = $this->config->getConfigParam('sCustomTheme');
 
         foreach ($activeBlockTemplates as $activeBlockTemplate) {
             if ($activeBlockTemplate['OXTHEME']) {
@@ -690,7 +690,7 @@ class oxUtilsView extends oxSuperCfg implements ViewInterface
     {
         $activeBlockTemplates = $templateBlocks;
         $templateBlocks = array();
-        $customThemeId = $this->getConfig()->getConfigParam('sCustomTheme');
+        $customThemeId = $this->config->getConfigParam('sCustomTheme');
         foreach ($activeBlockTemplates as $activeBlockTemplate) {
             if (!in_array($this->prepareBlockKey($activeBlockTemplate), $templateBlocksToExchange['custom_theme'])
                 || $activeBlockTemplate['OXTHEME'] === $customThemeId
@@ -771,7 +771,7 @@ class oxUtilsView extends oxSuperCfg implements ViewInterface
         $ids = $this->_getActiveModuleInfo();
         if (count($ids)) {
             $templateBlockRepository = oxNew(ModuleTemplateBlockRepository::class);
-            $shopId = $this->getConfig()->getShopId();
+            $shopId = $this->config->getShopId();
             $activeModulesId = array_keys($ids);
             $blocksCount = $templateBlockRepository->getBlocksCount($activeModulesId, $shopId);
 

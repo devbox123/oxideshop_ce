@@ -2,8 +2,15 @@
 
 namespace OxidEsales\Eshop\Core;
 
-class Request implements RequestInterface
+use Symfony\Component\HttpFoundation\Request;
+
+class SymfonyRequest implements RequestInterface
 {
+    private $symfonyRequest;
+    public function __construct()
+    {
+        $this->symfonyRequest = Request::createFromGlobals();
+    }
 
     /**
      * Returns value of parameter stored in POST,GET.
@@ -41,15 +48,7 @@ class Request implements RequestInterface
      */
     public function getRequestRawParameter($name, $defaultValue = null)
     {
-        if (isset($_POST[$name])) {
-            $value = $_POST[$name];
-        } elseif (isset($_GET[$name])) {
-            $value = $_GET[$name];
-        } else {
-            $value = $defaultValue;
-        }
-
-        return $value;
+        return $this->symfonyRequest->get($name, $defaultValue);
     }
 
     /**
