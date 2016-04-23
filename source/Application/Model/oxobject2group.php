@@ -44,9 +44,9 @@ class oxObject2Group extends oxBase
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
-        parent::__construct($config);
+        parent::__construct($config, $database);
         $this->oxobject2group__oxshopid = new oxField($this->config->getShopId(), oxField::T_RAW);
     }
 
@@ -58,12 +58,10 @@ class oxObject2Group extends oxBase
      */
     public function save()
     {
-        $oDb = oxDb::getDb();
-        $sQ = "select 1 from oxobject2group where oxgroupsid = " . $oDb->quote($this->oxobject2group__oxgroupsid->value);
-        $sQ .= " and oxobjectid = " . $oDb->quote($this->oxobject2group__oxobjectid->value);
+        $sQ = "select 1 from oxobject2group where oxgroupsid = ? and oxobjectid = ?";
 
         // does not exist
-        if (!$oDb->getOne($sQ, false, false)) {
+        if (!$this->database->getOne($sQ, [$this->oxobject2group__oxgroupsid->value, $this->oxobject2group__oxobjectid->value])) {
             return parent::save();
         }
     }

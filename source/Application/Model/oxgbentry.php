@@ -57,8 +57,9 @@ class oxGbEntry extends oxBase
         $blRet = parent::assign($dbRecord);
 
         if (isset($this->oxgbentries__oxuserid) && $this->oxgbentries__oxuserid->value) {
-            $oDb = oxDb::getDb();
-            $this->oxuser__oxfname = new oxField($oDb->getOne("select oxfname from oxuser where oxid=" . $oDb->quote($this->oxgbentries__oxuserid->value)));
+            $this->oxuser__oxfname = new oxField(
+                $this->database->getOne("select oxfname from oxuser where oxid=?", [$this->oxgbentries__oxuserid->value])
+            );
         }
 
         return $blRet;
@@ -100,7 +101,7 @@ class oxGbEntry extends oxBase
         if ($myConfig->getConfigParam('blGBModerate')) {
             $oUser = $this->getUser();
             $sSelect .= " and ( oxgbentries.oxactive = '1' ";
-            $sSelect .= $oUser ? " or oxgbentries.oxuserid = " . oxDb::getDb()->quote($oUser->getId()) : '';
+            $sSelect .= $oUser ? " or oxgbentries.oxuserid = " . $this->database->quote($oUser->getId()) : '';
             $sSelect .= " ) ";
         }
 
@@ -127,22 +128,21 @@ class oxGbEntry extends oxBase
     public function getEntryCount()
     {
         $myConfig = $this->config;
-        $oDb = oxDb::getDb();
 
         // loading entries
         $sSelect = 'select count(*) from oxgbentries left join oxuser on oxgbentries.oxuserid = oxuser.oxid ';
-        $sSelect .= 'where oxuser.oxid is not null and oxgbentries.oxshopid = "' . $myConfig->getShopId() . '" ';
+        $sSelect .= 'where oxuser.oxid is not null and oxgbentries.oxshopid = ? ';
 
         // setting GB entry view restirction rules
         if ($myConfig->getConfigParam('blGBModerate')) {
             $oUser = $this->getUser();
             $sSelect .= " and ( oxgbentries.oxactive = '1' ";
-            $sSelect .= $oUser ? " or oxgbentries.oxuserid = " . $oDb->quote($oUser->getId()) : '';
+            $sSelect .= $oUser ? " or oxgbentries.oxuserid = ?";
             $sSelect .= " ) ";
         }
 
         // loading only if there is some data
-        $iRecCnt = (int) $oDb->getOne($sSelect);
+        $iRecCnt = (int) $this->database->getOne($sSelect, [$myConfig->getShopId(), $oUser->getId()]);
 
         return $iRecCnt;
     }
@@ -161,12 +161,11 @@ class oxGbEntry extends oxBase
     {
         $result = true;
         if ($sUserId && $sShopid) {
-            $oDb = oxDb::getDb();
             $sToday = date('Y-m-d');
             $sSelect = "select count(*) from oxgbentries ";
-            $sSelect .= "where oxgbentries.oxuserid = " . $oDb->quote($sUserId) . " and oxgbentries.oxshopid = " . $oDb->quote($sShopid) . " ";
+            $sSelect .= "where oxgbentries.oxuserid = ? and oxgbentries.oxshopid = ? ";
             $sSelect .= "and oxgbentries.oxcreate >= '$sToday 00:00:00' and oxgbentries.oxcreate <= '$sToday 23:59:59' ";
-            $iCnt = $oDb->getOne($sSelect);
+            $iCnt = $this->database->getOne($sSelect, [$sUserId, $sShopid]);
 
             $myConfig = $this->config;
             if ((!$myConfig->getConfigParam('iMaxGBEntriesPerDay')) || ($iCnt < $myConfig->getConfigParam('iMaxGBEntriesPerDay'))) {

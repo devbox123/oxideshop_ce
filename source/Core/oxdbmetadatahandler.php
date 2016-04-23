@@ -19,12 +19,14 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseAccessInterface;
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * Class for handling database related operations
  *
  */
-class oxDbMetaDataHandler extends oxSuperCfg
+class oxDbMetaDataHandler extends oxSuperCfg implements DatabaseAccessInterface
 {
 
     /**
@@ -60,6 +62,20 @@ class oxDbMetaDataHandler extends oxSuperCfg
     protected $forceOriginalFields = array('OXID');
 
     /**
+     * @var DatabaseInterface
+     */
+    protected $database;
+
+    /**
+     * Class constructor, sets active shop.
+     */
+    public function __construct(\oxConfig $config, DatabaseInterface $database)
+    {
+        parent::__construct($config);
+
+        $this->database = $database;
+    }
+    /**
      *  Get table fields
      *
      * @param string $sTableName  table name
@@ -88,9 +104,7 @@ class oxDbMetaDataHandler extends oxSuperCfg
      */
     public function tableExists($sTableName)
     {
-        $oDb = oxDb::getDb();
-        $aTables = $oDb->getAll("show tables like " . $oDb->quote($sTableName));
-
+        $aTables = $this->database->getAll("show tables like ?", [$sTableName]);
         return count($aTables) > 0;
     }
 
@@ -127,7 +141,7 @@ class oxDbMetaDataHandler extends oxSuperCfg
     public function getAllTables()
     {
         if (empty($this->_aTables)) {
-            $aTables = oxDb::getDb()->getAll("show tables");
+            $aTables = $this->database->getAll("show tables");
 
             foreach ($aTables as $aTableInfo) {
                 if ($this->validateTableName($aTableInfo[0])) {
@@ -172,7 +186,7 @@ class oxDbMetaDataHandler extends oxSuperCfg
     {
         $sTableSet = getLangTableName($sTable, $iLang);
 
-        $aRes = oxDb::getDb()->getAll("show create table {$sTable}");
+        $aRes = $this->database->getAll("show create table {$sTable}");
         $collation = $this->config->isUtf() ? '' : 'COLLATE latin1_general_ci';
         $sSql = "CREATE TABLE `{$sTableSet}` (" .
                 "`OXID` char(32) $collation NOT NULL, " .
@@ -198,7 +212,7 @@ class oxDbMetaDataHandler extends oxSuperCfg
         if (!$sTableSet) {
             $sTableSet = $sTable;
         }
-        $aRes = oxDb::getDb()->getAll("show create table {$sTable}");
+        $aRes = $this->database->getAll("show create table {$sTable}");
         $sTableSql = $aRes[0][1];
 
         // removing comments;
@@ -231,7 +245,7 @@ class oxDbMetaDataHandler extends oxSuperCfg
      */
     public function getAddFieldIndexSql($sTable, $sField, $sNewField, $sTableSet = null)
     {
-        $aRes = oxDb::getDb()->getAll("show create table {$sTable}");
+        $aRes = $this->database->getAll("show create table {$sTable}");
 
         $sTableSql = $aRes[0][1];
 
@@ -466,13 +480,11 @@ class oxDbMetaDataHandler extends oxSuperCfg
      */
     public function executeSql($aSql)
     {
-        $oDb = oxDb::getDb();
-
         if (is_array($aSql) && !empty($aSql)) {
             foreach ($aSql as $sSql) {
                 $sSql = trim($sSql);
                 if (!empty($sSql)) {
-                    $oDb->execute($sSql);
+                    $this->database->execute($sSql);
                 }
             }
         }
@@ -489,12 +501,11 @@ class oxDbMetaDataHandler extends oxSuperCfg
     {
         set_time_limit(0);
 
-        $oDb = oxDb::getDb();
         $oConfig = $this->config;
 
         $this->safeGuardAdditionalMultiLanguageTables();
 
-        $aShops = $oDb->getAll("select * from oxshops");
+        $aShops = $this->database->getAll("select * from oxshops");
 
         $aTables = $aTables ? $aTables : $oConfig->getConfigParam('aMultiShopTables');
 

@@ -94,9 +94,7 @@ class oxCountry extends oxI18n
      */
     public function getIdByCode($sCode)
     {
-        $oDb = oxDb::getDb();
-
-        return $oDb->getOne("select oxid from oxcountry where oxisoalpha2 = " . $oDb->quote($sCode));
+        return $this->database->getOne("select oxid from oxcountry where oxisoalpha2 = ?", [$sCode]);
     }
 
     /**

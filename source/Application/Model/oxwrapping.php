@@ -62,9 +62,9 @@ class oxWrapping extends oxI18n
      * Class constructor, initiates parent constructor (parent::oxBase()), loads
      * base shop objects.
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
-        parent::__construct($config);
+        parent::__construct($config, $database);
 
         $oConfig = $this->config;
         $this->setWrappingVat($oConfig->getConfigParam('dDefaultVAT'));
@@ -130,7 +130,7 @@ class oxWrapping extends oxI18n
         $oEntries = oxNew('oxlist');
         $oEntries->init('oxwrapping');
         $sWrappingViewName = getViewName('oxwrapping');
-        $sSelect = "select * from $sWrappingViewName where $sWrappingViewName.oxactive = '1' and $sWrappingViewName.oxtype = " . oxDb::getDb()->quote($sWrapType);
+        $sSelect = "select * from $sWrappingViewName where $sWrappingViewName.oxactive = '1' and $sWrappingViewName.oxtype = " . $this->database->quote($sWrapType);
         $oEntries->selectString($sSelect);
 
         return $oEntries;
@@ -146,10 +146,9 @@ class oxWrapping extends oxI18n
     public function getWrappingCount($sWrapType)
     {
         $sWrappingViewName = getViewName('oxwrapping');
-        $oDb = oxDb::getDb();
-        $sQ = "select count(*) from $sWrappingViewName where $sWrappingViewName.oxactive = '1' and $sWrappingViewName.oxtype = " . $oDb->quote($sWrapType);
+        $sQ = "select count(*) from $sWrappingViewName where $sWrappingViewName.oxactive = '1' and $sWrappingViewName.oxtype = ?";
 
-        return (int) $oDb->getOne($sQ);
+        return (int) $this->database->getOne($sQ, [$sWrapType]);
     }
 
     /**

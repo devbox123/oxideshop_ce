@@ -2,8 +2,17 @@
 
 namespace OxidEsales\Eshop\Application\Model\Article;
 
-class ListArticle implements ListArticleInterface
+use OxidEsales\Eshop\Core\DatabaseAccessInterface;
+use OxidEsales\Eshop\Core\DatabaseInterface;
+
+class ListArticle implements ListArticleInterface, DatabaseAccessInterface
 {
+    protected $database;
+    public function __construct(DatabaseInterface $database)
+    {
+        $this->database = $database;
+    }
+
     public function getLanguage()
     {
         return $this->data[__FUNCTION__];
@@ -126,7 +135,6 @@ class ListArticle implements ListArticleInterface
 
     public function __call($method, $params)
     {
-        $method = $method;
     }
 
     public function __get($field)
@@ -150,21 +158,10 @@ class ListArticle implements ListArticleInterface
 
     public function load($id)
     {
-        $data = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC)->getRow(
-            sprintf(
-                'SELECT data FROM list_article WHERE id = %s',
-                \oxDb::getDb()->quote($id)
-            )
-        );
+        $data = $this->database->getRow('SELECT data FROM list_article WHERE id = ?', [$id]);
+        $origData = $this->database->getRow('SELECT * FROM oxarticles WHERE oxid = ?', [$id]);
+
         $this->data = json_decode(reset($data), true);
-
-        $origData = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC)->getRow(
-            sprintf(
-                'SELECT * FROM oxarticles WHERE oxid = %s',
-                \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC)->quote($id)
-            )
-        );
-
         $this->origData = $origData;
 
         $this->oxarticles__oxnid = $this->oxarticles__oxid;

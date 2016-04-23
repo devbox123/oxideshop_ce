@@ -100,8 +100,7 @@ class oxSelectlist extends oxI18n implements oxISelectList
 
         // remove selectlists from articles also
         if ($blRemove = parent::delete($sOXID)) {
-            $oDb = oxDb::getDb();
-            $oDb->execute("delete from oxobject2selectlist where oxselnid = " . $oDb->quote($sOXID) . " ");
+            $this->database->execute("delete from oxobject2selectlist where oxselnid = ?", [$sOXID]);
         }
 
         return $blRemove;

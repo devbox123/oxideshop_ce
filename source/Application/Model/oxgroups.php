@@ -55,21 +55,17 @@ class oxGroups extends oxI18n
 
         parent::delete($sOXID);
 
-        $oDb = oxDb::getDb();
-
         // deleting related data records
-        $sDelete = 'delete from oxobject2group where oxobject2group.oxgroupsid = ' . $oDb->quote($sOXID);
-        $rs = $oDb->execute($sDelete);
+        $sDelete = 'delete from oxobject2group where oxobject2group.oxgroupsid = ?';
+        $this->database->execute($sDelete, [$sOXID]);
 
-        $sDelete = 'delete from oxobject2delivery where oxobject2delivery.oxobjectid = ' . $oDb->quote($sOXID);
-        $rs = $oDb->execute($sDelete);
+        $sDelete = 'delete from oxobject2delivery where oxobject2delivery.oxobjectid = ?';
+        $this->database->execute($sDelete, [$sOXID]);
 
-        $sDelete = 'delete from oxobject2discount where oxobject2discount.oxobjectid = ' . $oDb->quote($sOXID);
-        $rs = $oDb->execute($sDelete);
+        $sDelete = 'delete from oxobject2discount where oxobject2discount.oxobjectid = ?';
+        $this->database->execute($sDelete, [$sOXID]);
 
-        $sDelete = 'delete from oxobject2payment where oxobject2payment.oxobjectid = ' . $oDb->quote($sOXID);
-        $rs = $oDb->execute($sDelete);
-
-        return $rs->EOF;
+        $sDelete = 'delete from oxobject2payment where oxobject2payment.oxobjectid = ?';
+        return $this->database->execute($sDelete, [$sOXID]);
     }
 }

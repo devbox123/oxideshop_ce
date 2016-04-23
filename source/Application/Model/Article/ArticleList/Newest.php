@@ -33,7 +33,7 @@ class Newest extends AbstractList
 
         $iLimit = 5;
 
-        $article = new ListArticle();
+        $article = oxNew(ListArticle::class);
 
         $sArticleTable = getViewName('oxarticles');
         $sType = 'oxinsert';
@@ -42,8 +42,7 @@ class Newest extends AbstractList
         $sSelect .= "where oxparentid = '' and " . $article->getSqlActiveSnippet() . " and oxissearch = 1 order by $sType desc ";
         $sSelect .= "limit " . $iLimit;
 
-        $oDb = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
-        $ids = $oDb->getAll($sSelect);
+        $ids = $this->database->getAll($sSelect);
 
         return $this->yieldByIds($ids);
     }

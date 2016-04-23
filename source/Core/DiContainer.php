@@ -18,6 +18,7 @@ class DiContainer implements ContainerInterface
     const CONTAINER_CORE_CONFIG = 'core.config';
     const CONTAINER_CORE_REQUEST = 'core.request';
     const CONTAINER_CORE_SESSION = 'core.session';
+    const CONTAINER_CORE_DATABASE = 'core.database';
     const CONTAINER_CORE_MAILER = 'core.mailer';
     const CONTAINER_CORE_EVENT_DISPATCHER = 'core.eventdispatcher';
 
@@ -80,6 +81,12 @@ class DiContainer implements ContainerInterface
         $container
             //->register(static::CONTAINER_CORE_SESSION, \oxSession::class)
             ->register(static::CONTAINER_CORE_SESSION, SymfonySession::class)
+            ->addArgument(new Reference(static::CONTAINER_CORE_CONFIG));
+
+        //basic setup
+        $container
+            //->register(static::CONTAINER_CORE_SESSION, \oxSession::class)
+            ->register(static::CONTAINER_CORE_DATABASE, PdoDatabase::class)
             ->addArgument(new Reference(static::CONTAINER_CORE_CONFIG));
     }
 

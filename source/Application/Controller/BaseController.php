@@ -2342,7 +2342,7 @@ class BaseController extends \oxView
                 $config = $this->config;
                 if ($config->getConfigParam('bl_perfLoadAktion')) {
                     // top 5 articles
-                    $list = (new TopFive())->getAll();
+                    $list = oxNew(TopFive::class)->getAll();
                     if ($list) {
                         $this->_aTop5ArticleList = $list;
                     }
@@ -2361,7 +2361,7 @@ class BaseController extends \oxView
      */
     public function getBargainArticleList()
     {
-        return (new Action())->getById('OXBARGAIN');
+        return oxNew(Action::class)->getById('OXBARGAIN');
     }
 
     /**

@@ -56,8 +56,7 @@ class oxReview extends oxBase
         $blRet = parent::assign($dbRecord);
 
         if (isset($this->oxreviews__oxuserid) && $this->oxreviews__oxuserid->value) {
-            $oDb = oxDb::getDb();
-            $this->oxuser__oxfname = new oxField($oDb->getOne("select oxfname from oxuser where oxid=" . $oDb->quote($this->oxreviews__oxuserid->value)));
+            $this->oxuser__oxfname = new oxField($this->database->getOne("select oxfname from oxuser where oxid=?", [$this->oxreviews__oxuserid->value]));
         }
 
         return $blRet;
@@ -105,23 +104,20 @@ class oxReview extends oxBase
      */
     public function loadList($sType, $aIds, $blLoadEmpty = false, $iLoadInLang = null)
     {
-        $oDb = oxDb::getDb();
-
         $oRevs = oxNew('oxlist');
         $oRevs->init('oxreview');
 
-        $sObjectIdWhere = '';
         if (is_array($aIds) && count($aIds)) {
-            $sObjectIdWhere = "oxreviews.oxobjectid in ( " . implode(", ", oxDb::getInstance()->quoteArray($aIds)) . " )";
+            $sObjectIdWhere = "oxreviews.oxobjectid in ( " . implode(", ", $this->database->quoteArray($aIds)) . " )";
         } elseif (is_string($aIds) && $aIds) {
-            $sObjectIdWhere = "oxreviews.oxobjectid = " . $oDb->quote($aIds);
+            $sObjectIdWhere = "oxreviews.oxobjectid = " . $this->database->quote($aIds);
         } else {
             return $oRevs;
         }
 
         $iLoadInLang = is_null($iLoadInLang) ? (int) oxRegistry::getLang()->getBaseLanguage() : (int) $iLoadInLang;
 
-        $sSelect = "select oxreviews.* from oxreviews where oxreviews.oxtype = " . $oDb->quote($sType) . " and $sObjectIdWhere and oxreviews.oxlang = '$iLoadInLang'";
+        $sSelect = "select oxreviews.* from oxreviews where oxreviews.oxtype = " . $this->database->quote($sType) . " and $sObjectIdWhere and oxreviews.oxlang = '$iLoadInLang'";
 
         if (!$blLoadEmpty) {
             $sSelect .= ' and oxreviews.oxtext != "" ';
@@ -129,7 +125,7 @@ class oxReview extends oxBase
 
         if ($this->config->getConfigParam('blGBModerate')) {
             $sSelect .= ' and ( oxreviews.oxactive = "1" ';
-            $sSelect .= ($oUser = $this->getUser()) ? 'or  oxreviews.oxuserid = ' . $oDb->quote($oUser->getId()) . ' )' : ')';
+            $sSelect .= ($oUser = $this->getUser()) ? 'or  oxreviews.oxuserid = ' . $this->database->quote($oUser->getId()) . ' )' : ')';
         }
 
         $sSelect .= ' order by oxreviews.oxcreate desc ';

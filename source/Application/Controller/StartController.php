@@ -253,7 +253,7 @@ class StartController extends oxUBase
             $this->_aNewArticleList = array();
             if ($this->_getLoadActionsParam()) {
                 // newest articles
-                $list = (new Newest())->getAll();
+                $list = oxNew(Newest::class)->getAll();
                 if (count($list)) {
                     $this->_aNewArticleList = $list;
                 }
@@ -270,7 +270,7 @@ class StartController extends oxUBase
      */
     public function getFirstArticle()
     {
-        return (new Action())->getById('OXFIRSTSTART');
+        return oxNew(Action::class)->getById('OXFIRSTSTART');
     }
 
     /**
@@ -297,7 +297,7 @@ class StartController extends oxUBase
      */
     public function getCatOfferArticleList()
     {
-        return (new Action())->getById('OXCATOFFER');
+        return oxNew(Action::class)->getById('OXCATOFFER');
     }
 
     /**

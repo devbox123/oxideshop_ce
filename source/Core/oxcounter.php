@@ -19,13 +19,28 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseAccessInterface;
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * Counter class
  *
  */
-class oxCounter
+class oxCounter implements DatabaseAccessInterface
 {
+
+    /**
+     * @var DatabaseInterface
+     */
+    protected $database;
+
+    /**
+     * Class constructor, sets active shop.
+     */
+    public function __construct(DatabaseInterface $database)
+    {
+        $this->database = $database;
+    }
 
     /**
      * Returns next counter value
@@ -36,21 +51,19 @@ class oxCounter
      */
     public function getNext($sIdent)
     {
-        $oDb = oxDb::getDb();
-        $oDb->startTransaction();
+        $this->database->startTransaction();
 
-        $sQ = "SELECT `oxcount` FROM `oxcounters` WHERE `oxident` = " . $oDb->quote($sIdent) . " FOR UPDATE";
+        $sQ = 'SELECT `oxcount` FROM `oxcounters` WHERE `oxident` = ? FOR UPDATE';
 
-        if (($iCnt = $oDb->getOne($sQ, false, false)) === false) {
+        if (($iCnt = $this->database->getOne($sQ, [$sIdent])) === false) {
             $sQ = "INSERT INTO `oxcounters` (`oxident`, `oxcount`) VALUES (?, '0')";
-            $oDb->execute($sQ, array($sIdent));
+            $this->database->execute($sQ, [$sIdent]);
         }
 
         $iCnt = ((int) $iCnt) + 1;
-        $sQ = "UPDATE `oxcounters` SET `oxcount` = ? WHERE `oxident` = ?";
-        $oDb->execute($sQ, array($iCnt, $sIdent));
-
-        $oDb->commitTransaction();
+        $sQ = 'UPDATE `oxcounters` SET `oxcount` = ? WHERE `oxident` = ?';
+        $this->database->execute($sQ, [$iCnt, $sIdent]);
+        $this->database->commitTransaction();
 
         return $iCnt;
     }
@@ -66,20 +79,19 @@ class oxCounter
      */
     public function update($sIdent, $iCount)
     {
-        $oDb = oxDb::getDb();
-        $oDb->startTransaction();
+        $this->database->startTransaction();
 
-        $sQ = "SELECT `oxcount` FROM `oxcounters` WHERE `oxident` = " . $oDb->quote($sIdent) . " FOR UPDATE";
+        $sQ = "SELECT `oxcount` FROM `oxcounters` WHERE `oxident` = ? FOR UPDATE";
 
-        if (($iCnt = $oDb->getOne($sQ, false, false)) === false) {
+        if (($iCnt = $this->database->getOne($sQ, [$sIdent])) === false) {
             $sQ = "INSERT INTO `oxcounters` (`oxident`, `oxcount`) VALUES (?, ?)";
-            $blResult = $oDb->execute($sQ, array($sIdent, $iCount));
+            $blResult = $this->database->execute($sQ, [$sIdent, $iCount]);
         } else {
             $sQ = "UPDATE `oxcounters` SET `oxcount` = ? WHERE `oxident` = ? AND `oxcount` < ?";
-            $blResult = $oDb->execute($sQ, array($iCount, $sIdent, $iCount));
+            $blResult = $this->database->execute($sQ, [$iCount, $sIdent, $iCount]);
         }
 
-        $oDb->commitTransaction();
+        $this->database->commitTransaction();
 
         return $blResult;
     }

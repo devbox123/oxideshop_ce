@@ -7,18 +7,15 @@ class Accessoires extends AbstractList
 {
     public function getById($sArticleId)
     {
-        $article = new ListArticle();
-        $sArticleId = \oxDb::getDb()->quote($sArticleId);
-
+        $article = oxNew(ListArticle::class);
         $sArticleTable = $article->getViewName();
 
         $sSelect = "select $sArticleTable.oxid from oxaccessoire2article left join $sArticleTable on oxaccessoire2article.oxobjectid=$sArticleTable.oxid ";
-        $sSelect .= "where oxaccessoire2article.oxarticlenid = $sArticleId ";
+        $sSelect .= "where oxaccessoire2article.oxarticlenid = ? ";
         $sSelect .= " and $sArticleTable.oxid is not null and " . $article->getSqlActiveSnippet();
         $sSelect .= " order by oxaccessoire2article.oxsort";
 
-        $oDb = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
-        $ids = $oDb->getAll($sSelect);
+        $ids = $this->database->getAll($sSelect, [$sArticleId]);
 
         return $this->yieldByIds($ids);
     }

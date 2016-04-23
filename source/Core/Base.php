@@ -31,7 +31,6 @@ DEFINE('ACTION_INSERT', 2);
 DEFINE('ACTION_UPDATE', 3);
 DEFINE('ACTION_UPDATE_STOCK', 4);
 
-use Exception;
 use object_ResultSet;
 use oxObjectException;
 use oxRegistry;
@@ -39,7 +38,7 @@ use oxField;
 use oxDb;
 use oxUtilsObject;
 
-class Base extends \oxSuperCfg
+class Base extends \oxSuperCfg implements DatabaseAccessInterface
 {
 
     /**
@@ -181,6 +180,11 @@ class Base extends \oxSuperCfg
     protected $_blEmployMultilanguage = false;
 
     /**
+     * @var DatabaseInterface
+     */
+    protected $database;
+
+    /**
      * Getting use skip fields or not
      *
      * @return bool
@@ -203,12 +207,13 @@ class Base extends \oxSuperCfg
     /**
      * Class constructor, sets active shop.
      */
-    public function __construct($config)
+    public function __construct(\oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config);
 
-        // set active shop
+        $this->database = $database;
         $myConfig = $this->config;
+
 
         $this->_addSkippedSaveFieldsForMapping();
 
@@ -342,10 +347,8 @@ class Base extends \oxSuperCfg
     protected function _setUpdateSeoOnFieldChange($fieldName)
     {
         if ($this->getId() && in_array($fieldName, $this->getFieldNames())) {
-            $database = oxDb::getDb();
             $tableName = $this->getCoreTableName();
-            $sQuotedOxid = $database->quote($this->getId());
-            $title = $database->getOne("select `{$fieldName}` from `{$tableName}` where `oxid` = {$sQuotedOxid}");
+            $title = $this->database->getOne("select `{$fieldName}` from `{$tableName}` where `oxid` = ?", [$this->getId()]);
             $fieldValue = "{$tableName}__{$fieldName}";
             $currentTime = $this->$fieldValue->value;
 
@@ -796,10 +799,8 @@ class Base extends \oxSuperCfg
         }
 
         $viewName = $this->getCoreTableName();
-        $database = oxDb::getDb(oxDb::FETCH_MODE_ASSOC);
-        $query = "select {$this->_sExistKey} from {$viewName} where {$this->_sExistKey} = " . $database->quote($oxid);
-
-        return ( bool ) $database->getOne($query, false, false);
+        $query = "select {$this->_sExistKey} from {$viewName} where {$this->_sExistKey} = ?";
+        return ( bool ) $this->database->getOne($query, [$oxid]);
     }
 
     /**
@@ -1268,14 +1269,13 @@ class Base extends \oxSuperCfg
 
         $idKey = oxRegistry::getUtils()->getArrFldName($coreTableName . '.oxid');
         $this->$idKey = new oxField($this->getId(), oxField::T_RAW);
-        $database = oxDb::getDb();
 
         $updateQuery = "update {$coreTableName} set " . $this->_getUpdateFields()
-                   . " where {$coreTableName}.oxid = " . $database->quote($this->getId());
+                   . " where {$coreTableName}.oxid = ?";
 
         $this->beforeUpdate();
 
-        $result = (bool) $database->execute($updateQuery);
+        $result = (bool) $this->database->execute($updateQuery, [$this->getId()]);
 
         return $result;
     }
@@ -1310,7 +1310,7 @@ class Base extends \oxSuperCfg
 
         $insertSql .= $this->_getUpdateFields($this->getUseSkipSaveFields());
 
-        $result = (bool) $database->execute($insertSql);
+        $result = (bool) $this->database->execute($insertSql);
 
         return $result;
     }

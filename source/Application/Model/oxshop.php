@@ -270,7 +270,6 @@ class oxShop extends oxI18n
      */
     protected function _cleanInvalidViews()
     {
-        $oDb = oxDb::getDb();
         $oLang = oxRegistry::getLang();
         $aLanguages = $oLang->getLanguageIds($this->getId());
 
@@ -291,7 +290,7 @@ class oxShop extends oxI18n
         $aViews = $oViewsValidator->getInvalidViews();
 
         foreach ($aViews as $sView) {
-            $oDb->execute('DROP VIEW IF EXISTS ' . $sView);
+            $this->database->execute('DROP VIEW IF EXISTS ' . $sView);
         }
     }
 
@@ -347,11 +346,10 @@ class oxShop extends oxI18n
      */
     protected function _runQueries()
     {
-        $oDb = oxDb::getDb();
         $aQueries = $this->getQueries();
         $bSuccess = true;
         foreach ($aQueries as $sQuery) {
-            if (!$oDb->execute($sQuery)) {
+            if (!$this->database->execute($sQuery)) {
                 $bSuccess = false;
             }
         }

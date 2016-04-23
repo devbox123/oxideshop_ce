@@ -258,9 +258,9 @@ class oxOrder extends oxBase
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
-        parent::__construct($config);
+        parent::__construct($config, $database);
 
         // set usage of separate orders numbering for different shops
         $this->setSeparateNumbering($this->config->getConfigParam('blSeparateNumbering'));
@@ -632,9 +632,8 @@ class oxOrder extends oxBase
      */
     protected function _setOrderStatus($sStatus)
     {
-        $oDb = oxDb::getDb();
-        $sQ = 'update oxorder set oxtransstatus=' . $oDb->quote($sStatus) . ' where oxid=' . $oDb->quote($this->getId());
-        $oDb->execute($sQ);
+        $sQ = 'update oxorder set oxtransstatus=? where oxid=?';
+        $this->database->execute($sQ, [$sStatus, $this->getId()]);
 
         //updating order object
         $this->oxorder__oxtransstatus = new oxField($sStatus, oxField::T_RAW);
@@ -1146,11 +1145,10 @@ class oxOrder extends oxBase
      */
     protected function _updateOrderDate()
     {
-        $oDb = oxDb::getDb();
         $sDate = date('Y-m-d H:i:s', oxRegistry::get("oxUtilsDate")->getTime());
-        $sQ = 'update oxorder set oxorderdate=' . $oDb->quote($sDate) . ' where oxid=' . $oDb->quote($this->getId());
+        $sQ = 'update oxorder set oxorderdate=? where oxid=?';
         $this->oxorder__oxorderdate = new oxField($sDate, oxField::T_RAW);
-        $oDb->execute($sQ);
+        $this->database->execute($sQ, [$sDate, $this->getId()]);
     }
 
     /**
@@ -1309,11 +1307,9 @@ class oxOrder extends oxBase
      */
     protected function _setNumber()
     {
-        $oDb = oxDb::getDb();
-
         $iCnt = oxNew('oxCounter')->getNext($this->_getCounterIdent());
         $sQ = "update oxorder set oxordernr = ? where oxid = ?";
-        $blUpdate = ( bool ) $oDb->execute($sQ, array($iCnt, $this->getId()));
+        $blUpdate = ( bool ) $this->database->execute($sQ, array($iCnt, $this->getId()));
 
         if ($blUpdate) {
             $this->oxorder__oxordernr = new oxField($iCnt);
@@ -1384,7 +1380,7 @@ class oxOrder extends oxBase
      */
     public function recalculateOrder($aNewArticles = array())
     {
-        oxDb::getDb()->startTransaction();
+        $this->database->startTransaction();
 
         try {
             $oBasket = $this->_getOrderBasket();
@@ -1403,14 +1399,14 @@ class oxOrder extends oxBase
 
             //if finalizing order failed, rollback transaction
             if ($iRet !== 1) {
-                oxDb::getDb()->rollbackTransaction();
+                $this->database->rollbackTransaction();
             } else {
-                oxDb::getDb()->commitTransaction();
+                $this->database->commitTransaction();
             }
 
         } catch (Exception $oE) {
             // if exception, rollBack everything
-            oxDb::getDb()->rollbackTransaction();
+            $this->database->rollbackTransaction();
         }
     }
 
@@ -1455,13 +1451,12 @@ class oxOrder extends oxBase
         $this->_oOrderBasket->setCardMessage($this->oxorder__oxcardtext->value);
 
         if ($this->_blReloadDiscount) {
-            $oDb = oxDb::getDb(oxDb::FETCH_MODE_ASSOC);
             // disabling availability check
             $this->_oOrderBasket->setSkipVouchersChecking(true);
 
             // add previously used vouchers
-            $sQ = 'select oxid from oxvouchers where oxorderid = ' . $oDb->quote($this->getId());
-            $aVouchers = $oDb->getAll($sQ);
+            $sQ = 'select oxid from oxvouchers where oxorderid = ?';
+            $aVouchers = $this->database->getAll($sQ, [$this->getId()]);
             foreach ($aVouchers as $aVoucher) {
                 $this->_oOrderBasket->addVoucher($aVoucher['oxid']);
             }
@@ -1578,9 +1573,8 @@ class oxOrder extends oxBase
      */
     public function getInvoiceNum()
     {
-        $sQ = 'select max(oxorder.oxinvoicenr) from oxorder where oxorder.oxshopid = "' . $this->config->getShopId() . '" ';
-
-        return (( int ) oxDb::getDb()->getOne($sQ, false) + 1);
+        $sQ = 'select max(oxorder.oxinvoicenr) from oxorder where oxorder.oxshopid = ?';
+        return (( int ) $this->database->getOne($sQ, [$this->config->getShopId()]) + 1);
     }
 
     /**
@@ -1590,9 +1584,9 @@ class oxOrder extends oxBase
      */
     public function getNextBillNum()
     {
-        $sQ = 'select max(cast(oxorder.oxbillnr as unsigned)) from oxorder where oxorder.oxshopid = "' . $this->config->getShopId() . '" ';
+        $sQ = 'select max(cast(oxorder.oxbillnr as unsigned)) from oxorder where oxorder.oxshopid = ?';
 
-        return (( int ) oxDb::getDb()->getOne($sQ, false) + 1);
+        return (( int ) $this->database->getOne($sQ, [$this->config->getShopId()]) + 1);
     }
 
     /**
@@ -1637,16 +1631,8 @@ class oxOrder extends oxBase
      */
     public function getVoucherNrList()
     {
-        $oDb = oxDb::getDb(oxDb::FETCH_MODE_ASSOC);
-        $aVouchers = array();
-        $sSelect = "select oxvouchernr from oxvouchers where oxorderid = " . $oDb->quote($this->oxorder__oxid->value);
-        $rs = $oDb->select($sSelect);
-        if ($rs != false && $rs->recordCount() > 0) {
-            while (!$rs->EOF) {
-                $aVouchers[] = $rs->fields['oxvouchernr'];
-                $rs->moveNext();
-            }
-        }
+        $sSelect = "select oxvouchernr from oxvouchers where oxorderid = ?";
+        $aVouchers = $this->database->getCol($sSelect, [$this->oxorder__oxid->value]);
 
         return $aVouchers;
     }
@@ -1660,14 +1646,12 @@ class oxOrder extends oxBase
      */
     public function getOrderSum($blToday = false)
     {
-        $sSelect = 'select sum(oxtotalordersum / oxcurrate) from oxorder where ';
-        $sSelect .= 'oxshopid = "' . $this->config->getShopId() . '" and oxorder.oxstorno != "1" ';
-
+        $sSelect = 'select sum(oxtotalordersum / oxcurrate) from oxorder where oxshopid = ? and oxorder.oxstorno != "1" ';
         if ($blToday) {
             $sSelect .= 'and oxorderdate like "' . date('Y-m-d') . '%" ';
         }
 
-        return ( double ) oxDb::getDb()->getOne($sSelect, false, false);
+        return ( double ) $this->database->getOne($sSelect, [$this->config->getShopId()]);
     }
 
     /**
@@ -1679,14 +1663,13 @@ class oxOrder extends oxBase
      */
     public function getOrderCnt($blToday = false)
     {
-        $sSelect = 'select count(*) from oxorder where ';
-        $sSelect .= 'oxshopid = "' . $this->config->getShopId() . '"  and oxorder.oxstorno != "1" ';
+        $sSelect = 'select count(*) from oxorder where oxshopid = ?  and oxorder.oxstorno != "1" ';
 
         if ($blToday) {
             $sSelect .= 'and oxorderdate like "' . date('Y-m-d') . '%" ';
         }
 
-        return ( int ) oxDb::getDb()->getOne($sSelect, false, false);
+        return ( int ) $this->database->getOne($sSelect, [$this->config->getShopId()]);
     }
 
 
@@ -1703,8 +1686,7 @@ class oxOrder extends oxBase
             return false;
         }
 
-        $oDb = oxDb::getDb();
-        if ($oDb->getOne('select oxid from oxorder where oxid = ' . $oDb->quote($sOxId), false, false)) {
+        if ($this->database->getOne('select oxid from oxorder where oxid = ?', [$sOxId])) {
             return true;
         }
 
@@ -1809,9 +1791,8 @@ class oxOrder extends oxBase
      */
     public function getLastUserPaymentType($sUserId)
     {
-        $oDb = oxDb::getDb();
-        $sQ = 'select oxorder.oxpaymenttype from oxorder where oxorder.oxshopid="' . $this->config->getShopId() . '" and oxorder.oxuserid=' . $oDb->quote($sUserId) . ' order by oxorder.oxorderdate desc ';
-        $sLastPaymentId = $oDb->getOne($sQ, false, false);
+        $sQ = 'select oxorder.oxpaymenttype from oxorder where oxorder.oxshopid=? and oxorder.oxuserid=? order by oxorder.oxorderdate desc ';
+        $sLastPaymentId = $this->database->getOne($sQ, [$this->config->getShopId(), $sUserId]);
 
         return $sLastPaymentId;
     }
@@ -2093,15 +2074,13 @@ class oxOrder extends oxBase
         if ($oBasket->getPaymentId() == 'oxempty') {
             return;
         }
-        $oDb = oxDb::getDb();
 
         $oDelSet = oxNew("oxdeliveryset");
         $sTable = $oDelSet->getViewName();
 
-        $sQ = "select 1 from {$sTable} where {$sTable}.oxid=" .
-              $oDb->quote($oBasket->getShippingId()) . " and " . $oDelSet->getSqlActiveSnippet();
+        $sQ = "select 1 from {$sTable} where {$sTable}.oxid=? and " . $oDelSet->getSqlActiveSnippet();
 
-        if (!$oDb->getOne($sQ, false, false)) {
+        if (!$this->database->getOne($sQ, [$oBasket->getShippingId()])) {
             // throwing exception
             return self::ORDER_STATE_INVALIDDELIVERY;
         }
@@ -2117,15 +2096,12 @@ class oxOrder extends oxBase
      */
     public function validatePayment($oBasket)
     {
-        $oDb = oxDb::getDb();
-
         $oPayment = oxNew("oxpayment");
         $sTable = $oPayment->getViewName();
 
-        $sQ = "select 1 from {$sTable} where {$sTable}.oxid=" .
-              $oDb->quote($oBasket->getPaymentId()) . " and " . $oPayment->getSqlActiveSnippet();
+        $sQ = "select 1 from {$sTable} where {$sTable}.oxid=? and " . $oPayment->getSqlActiveSnippet();
 
-        if (!$oDb->getOne($sQ, false, false)) {
+        if (!$this->database->getOne($sQ, [$oBasket->getPaymentId()])) {
             return self::ORDER_STATE_INVALIDPAYMENT;
         }
     }

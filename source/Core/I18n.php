@@ -23,7 +23,6 @@
 namespace OxidEsales\Eshop\Core;
 
 use oxRegistry;
-use oxDb;
 
 /**
  * Class handling multilanguage data fields
@@ -189,9 +188,8 @@ class I18n extends \oxBase
         }
 
         // select from non-multilanguage core view (all ml tables joined to one)
-        $oDb = oxDb::getDb(oxDb::FETCH_MODE_ASSOC);
-        $query = "select * from " . getViewName($this->_sCoreTable, -1, -1) . " where oxid = " . $oDb->quote($this->getId());
-        $rs = $oDb->getAll($query);
+        $query = "select * from " . getViewName($this->_sCoreTable, -1, -1) . " where oxid = ?";
+        $rs = $this->database->getAll($query, [$this->getId()]);
 
         $aNotInLang = $aLanguages;
 
@@ -447,7 +445,7 @@ class I18n extends \oxBase
                 $sUpdate = "insert into $sLangTable set " . $this->_getUpdateFieldsForTable($sLangTable, $this->getUseSkipSaveFields()) .
                            " on duplicate key update " . $this->_getUpdateFieldsForTable($sLangTable);
 
-                $blRet = (bool) oxDb::getDb()->execute($sUpdate);
+                $blRet = (bool) $this->database->execute($sUpdate);
             }
         }
 
@@ -490,7 +488,7 @@ class I18n extends \oxBase
             //also insert to multilang tables if it is separate
             foreach ($this->_getLanguageSetTables() as $sTable) {
                 $sSq = "insert into $sTable set " . $this->_getUpdateFieldsForTable($sTable, $this->getUseSkipSaveFields());
-                $blRet = $blRet && (bool) oxDb::getDb()->execute($sSq);
+                $blRet = $blRet && (bool) $this->database->execute($sSq);
             }
         }
 
@@ -587,12 +585,9 @@ class I18n extends \oxBase
     {
         $blDeleted = parent::delete($sOXID);
         if ($blDeleted) {
-            $oDB = oxDb::getDb();
-            $sOXID = $oDB->quote($sOXID);
-
             //delete the record
             foreach ($this->_getLanguageSetTables() as $sSetTbl) {
-                $oDB->execute("delete from {$sSetTbl} where oxid = {$sOXID}");
+                $this->database->execute("delete from {$sSetTbl} where oxid = ?", [$sOXID]);
             }
         }
 

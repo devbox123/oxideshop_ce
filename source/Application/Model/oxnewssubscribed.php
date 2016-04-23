@@ -94,9 +94,7 @@ class oxNewsSubscribed extends oxBase
      */
     protected function getSubscribedUserIdByEmail($email)
     {
-        $database = oxDb::getDb();
-        $sEmailAddressQuoted = $database->quote($email);
-        $userOxid = $database->getOne("select oxid from oxnewssubscribed where oxemail = {$sEmailAddressQuoted} ");
+        $userOxid = $this->database->getOne("select oxid from oxnewssubscribed where oxemail = ?", [$email]);
 
         return $userOxid;
     }
@@ -110,8 +108,10 @@ class oxNewsSubscribed extends oxBase
      */
     public function loadFromUserId($sOxUserId)
     {
-        $oDb = oxDb::getDb();
-        $sOxId = $oDb->getOne("select oxid from oxnewssubscribed where oxuserid = {$oDb->quote($sOxUserId)} and oxshopid = {$oDb->quote($this->config->getShopId())}");
+        $sOxId = $this->database->getOne(
+            "select oxid from oxnewssubscribed where oxuserid = ? and oxshopid = ?",
+            [$sOxUserId, $this->config->getShopId()]
+        );
 
         return $this->load($sOxId);
     }

@@ -299,6 +299,11 @@ class UtilsObject
                     $arguments = array_merge([$request, $session], $arguments);
                 }
 
+                if ($reflection->isSubclassOf(DatabaseAccessInterface::class)) {
+                    $database = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_DATABASE);
+                    $arguments = array_merge($arguments, [$database]);
+                }
+
                 if ($reflection->isSubclassOf(SuperConfig::class)) {
                     $config = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_CONFIG);
                     $arguments = array_merge([$config], $arguments);

@@ -45,12 +45,9 @@ class oxState extends oxI18n
      */
     public function getIdByCode($sCode, $sCountryId)
     {
-        $oDb = oxDb::getDb();
-
-        return $oDb->getOne(
-            "SELECT oxid FROM oxstates WHERE oxisoalpha2 = " . $oDb->quote(
-                $sCode
-            ) . " AND oxcountryid = " . $oDb->quote($sCountryId)
+        return $this->database->getOne(
+            "SELECT oxid FROM oxstates WHERE oxisoalpha2 = ? AND oxcountryid = ?",
+            [$sCode, $sCountryId]
         );
     }
 
@@ -63,9 +60,8 @@ class oxState extends oxI18n
      */
     public function getTitleById($iStateId)
     {
-        $oDb = oxDb::getDb();
-        $sQ = "SELECT oxtitle FROM " . getViewName("oxstates") . " WHERE oxid = " . $oDb->quote($iStateId);
-        $sStateTitle = $oDb->getOne($sQ);
+        $sQ = "SELECT oxtitle FROM " . getViewName("oxstates") . " WHERE oxid = ?";
+        $sStateTitle = $this->database->getOne($sQ, [$iStateId]);
 
         return (string) $sStateTitle;
     }

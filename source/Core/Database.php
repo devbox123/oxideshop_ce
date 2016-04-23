@@ -39,7 +39,7 @@ require_once getShopBasePath() . 'Core/adodblite/adodb.inc.php';
 /**
  * Database connection class
  */
-class Database
+class Database //implements DatabaseInterface
 {
     /**
      * Fetch mode - numeric

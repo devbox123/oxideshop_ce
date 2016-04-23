@@ -50,12 +50,9 @@ class oxDeliverySet extends oxI18n
             return false;
         }
 
-        $oDb = oxDb::getDb();
-
-        $sOxIdQuoted = $oDb->quote($sOxId);
-        $oDb->execute('delete from oxobject2payment where oxobjectid = ' . $sOxIdQuoted);
-        $oDb->execute('delete from oxobject2delivery where oxdeliveryid = ' . $sOxIdQuoted);
-        $oDb->execute('delete from oxdel2delset where oxdelsetid = ' . $sOxIdQuoted);
+        $this->database->execute('delete from oxobject2payment where oxobjectid = ?', [$sOxId]);
+        $this->database->execute('delete from oxobject2delivery where oxdeliveryid = ?', [$sOxId]);
+        $this->database->execute('delete from oxdel2delset where oxdelsetid = ?', [$sOxId]);
 
         return parent::delete($sOxId);
     }
@@ -69,9 +66,8 @@ class oxDeliverySet extends oxI18n
      */
     public function getIdByName($sTitle)
     {
-        $oDb = oxDb::getDb();
-        $sQ = "SELECT `oxid` FROM `" . getViewName('oxdeliveryset') . "` WHERE  `oxtitle` = " . $oDb->quote($sTitle);
-        $sId = $oDb->getOne($sQ);
+        $sQ = "SELECT `oxid` FROM `" . getViewName('oxdeliveryset') . "` WHERE  `oxtitle` = ?";
+        $sId = $this->database->getOne($sQ, [$sTitle]);
 
         return $sId;
     }

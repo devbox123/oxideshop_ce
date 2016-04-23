@@ -80,8 +80,7 @@ class oxDiscount extends oxI18n
             return false;
         }
 
-        $oDb = oxDb::getDb();
-        $oDb->execute('delete from oxobject2discount where oxobject2discount.oxdiscountid = ' . $oDb->quote($sOXID));
+        $this->database->execute('delete from oxobject2discount where oxobject2discount.oxdiscountid = ?', [$sOXID]);
 
         return parent::delete($sOXID);
     }
@@ -94,14 +93,11 @@ class oxDiscount extends oxI18n
     public function isGlobalDiscount()
     {
         if (is_null($this->_blIsForArticleOrForCategory)) {
-            $oDb = oxDb::getDb();
-            $sDiscountIdQuoted = $oDb->quote($this->oxdiscount__oxid->value);
-
             $sQuery = "select 1
                         from oxobject2discount
-                        where oxdiscountid = $sDiscountIdQuoted and (oxtype = 'oxarticles' or oxtype = 'oxcategories')";
+                        where oxdiscountid = ? and (oxtype = 'oxarticles' or oxtype = 'oxcategories')";
 
-            $this->_blIsForArticleOrForCategory = $oDb->getOne($sQuery) ? false : true;
+            $this->_blIsForArticleOrForCategory = $this->database->getOne($sQuery, [$this->oxdiscount__oxid->value]) ? false : true;
         }
 
         return $this->_blIsForArticleOrForCategory;
@@ -163,12 +159,10 @@ class oxDiscount extends oxI18n
             return false;
         }
 
-        $oDb = oxDb::getDb();
-
         // check if this article is assigned
-        $sQ = "select 1 from oxobject2discount where oxdiscountid = " . $oDb->quote($this->oxdiscount__oxid->value) . " and oxtype = 'oxarticles' ";
+        $sQ = "select 1 from oxobject2discount where oxdiscountid = ? and oxtype = 'oxarticles' ";
         $sQ .= $this->_getProductCheckQuery($oArticle);
-        if (!($blOk = ( bool ) $oDb->getOne($sQ))) {
+        if (!($blOk = ( bool ) $this->database->getOne($sQ, [$this->oxdiscount__oxid->value]))) {
 
             // checking article category
             $blOk = $this->_checkForArticleCategories($oArticle);
@@ -265,10 +259,9 @@ class oxDiscount extends oxI18n
         }
 
         // oxobject2discount configuration check
-        $oDb = oxDb::getDb();
-        $sQ = 'select 1 from oxobject2discount where oxdiscountid = ' . $oDb->quote($this->oxdiscount__oxid->value) . ' and oxtype in ("oxarticles", "oxcategories" ) ';
+        $sQ = 'select 1 from oxobject2discount where oxdiscountid = ? and oxtype in ("oxarticles", "oxcategories" ) ';
 
-        return !((bool) $oDb->getOne($sQ));
+        return !((bool) $this->database->getOne($sQ, [$this->oxdiscount__oxid->value]));
     }
 
     /**
@@ -284,10 +277,9 @@ class oxDiscount extends oxI18n
             return false;
         }
 
-        $oDb = oxDb::getDb();
-        $sQ = "select 1 from oxobject2discount where oxdiscountid=" . $oDb->quote($this->getId());
+        $sQ = "select 1 from oxobject2discount where oxdiscountid=?";
         $sQ .= $this->_getProductCheckQuery($oArticle);
-        if (!($blOk = (bool) $oDb->getOne($sQ))) {
+        if (!($blOk = (bool) $this->database->getOne($sQ, $this->getId()))) {
             // additional checks for amounts and other dependencies
             $blOk = $this->_checkForArticleCategories($oArticle);
         }
@@ -414,7 +406,10 @@ class oxDiscount extends oxI18n
      */
     public function getArticleIds()
     {
-        return oxDb::getDb()->getCol("select `oxobjectid` from oxobject2discount where oxdiscountid = '" . $this->getId() . "' and oxtype = 'oxarticles'");
+        return $this->database->getCol(
+            "select `oxobjectid` from oxobject2discount where oxdiscountid = ? and oxtype = 'oxarticles'",
+            [$this->getId()]
+        );
     }
 
     /**
@@ -424,7 +419,10 @@ class oxDiscount extends oxI18n
      */
     public function getCategoryIds()
     {
-        return oxDb::getDb()->getCol("select `oxobjectid` from oxobject2discount where oxdiscountid = '" . $this->getId() . "' and oxtype = 'oxcategories'");
+        return $this->database->getCol(
+            "select `oxobjectid` from oxobject2discount where oxdiscountid = ? and oxtype = 'oxcategories'",
+            [$this->getId()]
+        );
     }
 
     /**
@@ -443,13 +441,12 @@ class oxDiscount extends oxI18n
             return false;
         }
 
-        $sCatIds = "(" . implode(",", oxDb::getInstance()->quoteArray($aCatIds)) . ")";
+        $sCatIds = "(" . implode(",", $this->database->quoteArray($aCatIds)) . ")";
 
-        $oDb = oxDb::getDb();
         // getOne appends limit 1, so this one should be fast enough
-        $sQ = "select oxobjectid from oxobject2discount where oxdiscountid = " . $oDb->quote($this->oxdiscount__oxid->value) . " and oxobjectid in $sCatIds and oxtype = 'oxcategories'";
+        $sQ = "select oxobjectid from oxobject2discount where oxdiscountid = ? and oxobjectid in $sCatIds and oxtype = 'oxcategories'";
 
-        return $oDb->getOne($sQ);
+        return $this->database->getOne($sQ, [$this->oxdiscount__oxid->value]);
     }
 
     /**
@@ -462,12 +459,11 @@ class oxDiscount extends oxI18n
      */
     protected function _getProductCheckQuery($oProduct)
     {
-        $oDb = oxDb::getDb();
         // check if this article is assigned
         if (($sParentId = $oProduct->getParentId())) {
-            $sArticleId = " and ( oxobjectid = " . $oDb->quote($oProduct->getProductId()) . " or oxobjectid = " . $oDb->quote($sParentId) . " )";
+            $sArticleId = " and ( oxobjectid = " . $this->database->quote($oProduct->getProductId()) . " or oxobjectid = " . $this->database->quote($sParentId) . " )";
         } else {
-            $sArticleId = " and oxobjectid = " . $oDb->quote($oProduct->getProductId());
+            $sArticleId = " and oxobjectid = " . $this->database->quote($oProduct->getProductId());
         }
 
         return $sArticleId;
@@ -482,15 +478,10 @@ class oxDiscount extends oxI18n
      */
     protected function _isArticleAssigned($oArticle)
     {
-        $oDb = oxDb::getDb();
-        $sDiscountIdQuoted = $oDb->quote($this->oxdiscount__oxid->value);
-
-        $sQ = "select 1
-                from oxobject2discount
-                where oxdiscountid = {$sDiscountIdQuoted} and oxtype = 'oxarticles' ";
+        $sQ = "select 1 from oxobject2discount where oxdiscountid = ? and oxtype = 'oxarticles' ";
         $sQ .= $this->_getProductCheckQuery($oArticle);
 
-        return $oDb->getOne($sQ) ? true : false;
+        return $this->database->getOne($sQ, [$this->oxdiscount__oxid->value]) ? true : false;
     }
 
     /**
@@ -506,14 +497,10 @@ class oxDiscount extends oxI18n
             return false;
         }
 
-        $oDb = oxDb::getDb();
-        $sDiscountIdQuoted = $oDb->quote($this->oxdiscount__oxid->value);
+        $sCategoryIds = "(" . implode(",", $this->database->quoteArray($aCategoryIds)) . ")";
+        $sQ = "select 1 from oxobject2discount
+                where oxdiscountid = ? and oxobjectid in {$sCategoryIds} and oxtype = 'oxcategories'";
 
-        $sCategoryIds = "(" . implode(",", oxDb::getInstance()->quoteArray($aCategoryIds)) . ")";
-        $sQ = "select 1
-                from oxobject2discount
-                where oxdiscountid = {$sDiscountIdQuoted} and oxobjectid in {$sCategoryIds} and oxtype = 'oxcategories'";
-
-        return $oDb->getOne($sQ) ? true : false;
+        return $this->database->getOne($sQ, [$this->oxdiscount__oxid->value]) ? true : false;
     }
 }

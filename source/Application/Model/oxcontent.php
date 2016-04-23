@@ -143,7 +143,7 @@ class oxContent extends oxI18n implements oxIUrl
 
             // fetching column names
             $sColQ = "SHOW COLUMNS FROM oxcontents WHERE field LIKE  'oxcontent%'";
-            $aCols = oxDb::getDb()->getAll($sColQ);
+            $aCols = $this->database->getAll($sColQ);
 
             // building subquery
             $sPattern = "IF ( %s != '', %s, %s ) ";
@@ -159,7 +159,7 @@ class oxContent extends oxI18n implements oxIUrl
             $sSelect = str_replace("`{$sTable}`.`oxcontent`", "( $sContQ ) as oxcontent", $sSelect);
         }
 
-        $aData = oxDb::getDb(oxDb::FETCH_MODE_ASSOC)->getRow($sSelect);
+        $aData = $this->database->getRow($sSelect);
 
         return $aData;
     }
@@ -287,8 +287,10 @@ class oxContent extends oxI18n implements oxIUrl
 
                 if ($this->_sParentCatId === null) {
                     $this->_sParentCatId = false;
-                    $oDb = oxDb::getDb();
-                    $sParentId = $oDb->getOne("select oxparentid from oxcategories where oxid = " . $oDb->quote($this->oxcontents__oxcatid->value));
+                    $sParentId = $this->database->getOne(
+                        "select oxparentid from oxcategories where oxid = ?",
+                        [$this->oxcontents__oxcatid->value]
+                    );
                     if ($sParentId && 'oxrootid' != $sParentId) {
                         $this->_sParentCatId = $sParentId;
                     }
@@ -385,9 +387,8 @@ class oxContent extends oxI18n implements oxIUrl
             $sShopId = $this->config->getShopId();
             $sVersion = $this->oxcontents__oxtermversion->value;
 
-            $oDb = oxDb::getDb();
             // dropping expired..
-            $oDb->execute("delete from oxacceptedterms where oxshopid='{$sShopId}' and oxtermversion != " . $oDb->quote($sVersion));
+            $this->database->execute("delete from oxacceptedterms where oxshopid=? and oxtermversion != ?", [$sShopId, $sVersion]);
         }
 
         return $blSaved;

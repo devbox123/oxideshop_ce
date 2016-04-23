@@ -104,9 +104,9 @@ class oxUserPayment extends oxBase
     /**
      * Class constructor. Sets payment key for encoding sensitive data and
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
-        parent::__construct($config);
+        parent::__construct($config, $database);
         $this->_sPaymentKey = oxRegistry::getUtils()->strRot13($this->_sPaymentKey);
         $this->setStoreCreditCardInfo($this->config->getConfigParam('blStoreCreditCardInfo'));
     }
@@ -131,7 +131,7 @@ class oxUserPayment extends oxBase
     public function load($sOxId)
     {
         $sSelect = 'select oxid, oxuserid, oxpaymentsid, DECODE( oxvalue, "' . $this->getPaymentKey() . '" ) as oxvalue
-                    from oxuserpayments where oxid = ' . oxDb::getDb()->quote($sOxId);
+                    from oxuserpayments where oxid = ' . $this->database->quote($sOxId);
 
         return $this->assignRecord($sSelect);
     }
@@ -152,8 +152,7 @@ class oxUserPayment extends oxBase
 
         //encode sensitive data
         if ($sValue = $this->oxuserpayments__oxvalue->value) {
-            $oDb = oxDb::getDb();
-            $sEncodedValue = $oDb->getOne("select encode( " . $oDb->quote($sValue) . ", '" . $this->getPaymentKey() . "' )", false, false);
+            $sEncodedValue = $this->database->getOne("select encode(?,?)", [$sValue, $this->getPaymentKey()]);
             $this->oxuserpayments__oxvalue->setValue($sEncodedValue);
         }
 
@@ -174,11 +173,9 @@ class oxUserPayment extends oxBase
      */
     protected function _update()
     {
-        $oDb = oxDb::getDb();
-
         //encode sensitive data
         if ($sValue = $this->oxuserpayments__oxvalue->value) {
-            $sEncodedValue = $oDb->getOne("select encode( " . $oDb->quote($sValue) . ", '" . $this->getPaymentKey() . "' )", false, false);
+            $sEncodedValue = $this->database->getOne("select encode(?,?)", [$sValue, $this->getPaymentKey()]);
             $this->oxuserpayments__oxvalue->setValue($sEncodedValue);
         }
 
@@ -224,10 +221,8 @@ class oxUserPayment extends oxBase
     {
         $blGet = false;
         if ($oUser && $sPaymentType != null) {
-            $oDb = oxDb::getDb();
-            $sQ = 'select oxpaymentid from oxorder where oxpaymenttype=' . $oDb->quote($sPaymentType) . ' and
-                    oxuserid=' . $oDb->quote($oUser->getId()) . ' order by oxorderdate desc';
-            if (($sOxId = $oDb->getOne($sQ))) {
+            $sQ = 'select oxpaymentid from oxorder where oxpaymenttype=? and oxuserid=? order by oxorderdate desc';
+            if (($sOxId = $this->database->getOne($sQ, [$sPaymentType, $oUser->getId()]))) {
                 $blGet = $this->load($sOxId);
             }
         }

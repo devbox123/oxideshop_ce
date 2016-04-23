@@ -8,29 +8,19 @@ use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 class SymfonySession implements oxSessionInterface
 {
     private $symfonySession;
-    private $sessionStarted = false;
 
     public function __construct()
     {
         $this->symfonySession = new Session(new PhpBridgeSessionStorage());
     }
 
-    private function start()
-    {
-        if (false === $this->sessionStarted) {
-            //$this->sessionStarted = $this->symfonySession->start();
-        }
-    }
-
     public function getVariable($name)
     {
-        $this->start();
         return $this->symfonySession->get($name);
     }
 
     public function setVariable($name, $value)
     {
-        $this->start();
         $this->symfonySession->set($name, $value);
     }
 
@@ -62,5 +52,24 @@ class SymfonySession implements oxSessionInterface
     public function sid($blForceSid = false)
     {
         return 'sid=' . $this->getId();
+    }
+
+    public function regenerateSessionId()
+    {
+        $this->symfonySession->migrate();
+    }
+
+    public function checkSessionChallenge()
+    {
+        return true;
+    }
+
+    public function deleteVariable($name)
+    {
+        $this->symfonySession->remove($name);
+    }
+
+    public function delBasket()
+    {
     }
 }

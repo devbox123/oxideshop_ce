@@ -118,9 +118,9 @@ class oxPayment extends oxI18n
     /**
      * Class constructor, initiates parent constructor (parent::oxI18n()).
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
-        parent::__construct($config);
+        parent::__construct($config, $database);
         $this->setPaymentVatOnTop($this->config->getConfigParam('blPaymentVatOnTop'));
     }
 
@@ -375,10 +375,9 @@ class oxPayment extends oxI18n
     public function getCountries()
     {
         if ($this->_aCountries === null) {
-            $oDb = oxDb::getDb();
             $this->_aCountries = array();
-            $sSelect = 'select oxobjectid from oxobject2payment where oxpaymentid=' . $oDb->quote($this->getId()) . ' and oxtype = "oxcountry" ';
-            $rs = $oDb->getCol($sSelect);
+            $sSelect = 'select oxobjectid from oxobject2payment where oxpaymentid=? and oxtype = "oxcountry" ';
+            $rs = $this->database->getCol($sSelect, $this->getId());
             $this->_aCountries = $rs;
         }
 
@@ -397,10 +396,9 @@ class oxPayment extends oxI18n
         if (parent::delete($sOxId)) {
 
             $sOxId = $sOxId ? $sOxId : $this->getId();
-            $oDb = oxDb::getDb();
 
             // deleting payment related data
-            $rs = $oDb->execute("delete from oxobject2payment where oxpaymentid = " . $oDb->quote($sOxId));
+            $rs = $this->database->execute("delete from oxobject2payment where oxpaymentid = ?", [$sOxId]);
 
             return $rs->EOF;
         }

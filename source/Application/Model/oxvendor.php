@@ -81,9 +81,9 @@ class oxVendor extends oxI18n implements oxIUrl
     /**
      * Class constructor, initiates parent constructor (parent::oxI18n()).
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
-        parent::__construct($config);
+        parent::__construct($config, $database);
         $this->setShowArticleCnt($this->config->getConfigParam('bl_perfShowActionCatArticleCnt'));
     }
 

@@ -75,14 +75,12 @@ class oxAttribute extends oxI18n
         }
 
         // remove attributes from articles also
-        $oDb = oxDb::getDb();
-        $sOxidQuoted = $oDb->quote($sOXID);
-        $sDelete = "delete from oxobject2attribute where oxattrid = " . $sOxidQuoted;
-        $rs = $oDb->execute($sDelete);
+        $sDelete = "delete from oxobject2attribute where oxattrid = ?";
+        $this->database->execute($sDelete, [$sOXID]);
 
         // #657 ADDITIONAL removes attribute connection to category
-        $sDelete = "delete from oxcategory2attribute where oxattrid = " . $sOxidQuoted;
-        $rs = $oDb->execute($sDelete);
+        $sDelete = "delete from oxcategory2attribute where oxattrid = ?";
+        $this->database->execute($sDelete, [$sOXID]);
 
         return parent::delete($sOXID);
     }
@@ -139,10 +137,9 @@ class oxAttribute extends oxI18n
      */
     protected function _getAttrId($sSelTitle)
     {
-        $oDb = oxDb::getDB();
         $sAttViewName = getViewName('oxattribute');
 
-        return $oDb->getOne("select oxid from $sAttViewName where LOWER(oxtitle) = " . $oDb->quote(getStr()->strtolower($sSelTitle)));
+        return $this->database->getOne("select oxid from $sAttViewName where LOWER(oxtitle) = ?", [getStr()->strtolower($sSelTitle)]);
     }
 
     /**
@@ -178,19 +175,8 @@ class oxAttribute extends oxI18n
     public function getAttributeAssigns($sArtId)
     {
         if ($sArtId) {
-            $oDb = oxDb::getDb();
-
-            $sSelect = "select o2a.oxid from oxobject2attribute as o2a ";
-            $sSelect .= "where o2a.oxobjectid = " . $oDb->quote($sArtId) . " order by o2a.oxpos";
-
-            $aIds = array();
-            $rs = $oDb->select($sSelect);
-            if ($rs != false && $rs->recordCount() > 0) {
-                while (!$rs->EOF) {
-                    $aIds[] = $rs->fields[0];
-                    $rs->moveNext();
-                }
-            }
+            $sSelect = "select o2a.oxid from oxobject2attribute as o2a where o2a.oxobjectid = ? order by o2a.oxpos";
+            $aIds = $this->database->getCol($sSelect, [$sArtId]);
 
             return $aIds;
         }

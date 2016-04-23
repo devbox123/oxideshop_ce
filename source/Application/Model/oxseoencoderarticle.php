@@ -258,7 +258,6 @@ class oxSeoEncoderArticle extends oxSeoEncoder
         //load details link from DB
         if ($blRegenerate || !($sSeoUri = $this->_loadFromDb('oxarticle', $oArticle->getId(), $iLang, null, $sActCatId, true))) {
             if ($oActCat) {
-                $blInCat = false;
                 if ($oActCat->isPriceCategory()) {
                     $blInCat = $oArticle->inPriceCategory($sActCatId);
                 } else {

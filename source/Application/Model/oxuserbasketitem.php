@@ -68,10 +68,10 @@ class oxUserBasketItem extends oxBase
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
         $this->setVariantParentBuyable($this->config->getConfigParam('blVariantParentBuyable'));
-        parent::__construct($config);
+        parent::__construct($config, $database);
     }
 
     /**

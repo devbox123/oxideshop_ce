@@ -318,10 +318,7 @@ class oxFile extends oxBase
             return false;
         }
         $sHash = $this->oxfiles__oxstorehash->value;
-        $oDb = oxDb::getDb();
-        $iCount = $oDb->getOne(
-            'SELECT COUNT(*) FROM `oxfiles` WHERE `OXSTOREHASH` = ' . $oDb->quote($sHash), false, false
-        );
+        $iCount = $this->database->getOne('SELECT COUNT(*) FROM `oxfiles` WHERE `OXSTOREHASH` = ?', [$sHash]);
         if (!$iCount) {
             $sPath = $this->getStoreLocation();
             unlink($sPath);
@@ -386,20 +383,18 @@ class oxFile extends oxBase
             $sNow = date('Y-m-d H:i:s', oxRegistry::get("oxUtilsDate")->getTime());
             $sFileId = $this->getId();
 
-            $oDb = oxDb::getDb();
-
             $sSql = "SELECT
                         `oxorderfiles`.`oxid`
                      FROM `oxorderfiles`
                         LEFT JOIN `oxorderarticles` ON `oxorderarticles`.`oxid` = `oxorderfiles`.`oxorderarticleid`
                         LEFT JOIN `oxorder` ON `oxorder`.`oxid` = `oxorderfiles`.`oxorderid`
-                     WHERE `oxorderfiles`.`oxfileid` = " . $oDb->quote($sFileId) . "
+                     WHERE `oxorderfiles`.`oxfileid` = ?
                         AND ( ! `oxorderfiles`.`oxmaxdownloadcount` OR `oxorderfiles`.`oxmaxdownloadcount` > `oxorderfiles`.`oxdownloadcount`)
-                        AND ( `oxorderfiles`.`oxvaliduntil` = '0000-00-00 00:00:00' OR `oxorderfiles`.`oxvaliduntil` > '{$sNow}' )
+                        AND ( `oxorderfiles`.`oxvaliduntil` = '0000-00-00 00:00:00' OR `oxorderfiles`.`oxvaliduntil` > ? )
                         AND `oxorder`.`oxstorno` = 0
                         AND `oxorderarticles`.`oxstorno` = 0";
 
-            if ($oDb->getOne($sSql)) {
+            if ($this->database->getOne($sSql, [$sFileId, $sNow])) {
                 $this->_blHasValidDownloads = true;
             }
         }

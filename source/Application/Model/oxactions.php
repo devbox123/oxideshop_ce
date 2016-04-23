@@ -43,9 +43,8 @@ class oxActions extends oxI18n
      */
     public function addArticle($articleId)
     {
-        $oDb = oxDb::getDb();
-        $sQ = "select max(oxsort) from oxactions2article where oxactionid = " . $oDb->quote($this->getId()) . " and oxshopid = '" . $this->getShopId() . "'";
-        $iSort = ((int) $oDb->getOne($sQ)) + 1;
+        $sQ = "select max(oxsort) from oxactions2article where oxactionid = ? and oxshopid = ?'";
+        $iSort = ((int) $this->database->getOne($sQ, [$this->getId(), $this->getShopId()])) + 1;
 
         $oNewGroup = oxNew('oxBase');
         $oNewGroup->init('oxactions2article');
@@ -66,10 +65,8 @@ class oxActions extends oxI18n
     public function removeArticle($articleId)
     {
         // remove actions from articles also
-        $oDb = oxDb::getDb();
-        $sDelete = "delete from oxactions2article where oxactionid = " . $oDb->quote($this->getId()) . " and oxartid = " . $oDb->quote($articleId) . " and oxshopid = '" . $this->getShopId() . "'";
-        $oDb->execute($sDelete);
-        $iRemovedArticles = $oDb->affected_Rows();
+        $sDelete = "delete from oxactions2article where oxactionid = ? and oxartid = ? and oxshopid = ?";
+        $iRemovedArticles = $this->database->execute($sDelete, [$this->getId(), $articleId, $this->getShopId()]);
 
         return (bool) $iRemovedArticles;
     }
@@ -91,9 +88,8 @@ class oxActions extends oxI18n
         }
 
         // remove actions from articles also
-        $oDb = oxDb::getDb();
-        $sDelete = "delete from oxactions2article where oxactionid = " . $oDb->quote($articleId) . " and oxshopid = '" . $this->getShopId() . "'";
-        $oDb->execute($sDelete);
+        $sDelete = "delete from oxactions2article where oxactionid = ? and oxshopid = ?";
+        $this->database->execute($sDelete, [$articleId, $this->getShopId()]);
 
         return parent::delete($articleId);
     }
@@ -198,11 +194,9 @@ class oxActions extends oxI18n
      */
     public function getBannerArticle()
     {
-        $oDb = oxDb::getDb();
-        $sArtId = $oDb->getOne(
-            'select oxobjectid from oxobject2action '
-            . 'where oxactionid=' . $oDb->quote($this->getId())
-            . ' and oxclass="oxarticle"'
+        $sArtId = $this->database->getOne(
+            'select oxobjectid from oxobject2action where oxactionid=? and oxclass="oxarticle"',
+            [$this->getId()]
         );
 
         if ($sArtId) {

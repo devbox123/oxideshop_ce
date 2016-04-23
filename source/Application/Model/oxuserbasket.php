@@ -329,9 +329,8 @@ class oxUserBasket extends oxBase
         $blDelete = false;
         if ($sOXID && ($blDelete = parent::delete($sOXID))) {
             // cleaning up related data
-            $oDb = oxDb::getDb();
-            $sQ = "delete from oxuserbasketitems where oxbasketid = " . $oDb->quote($sOXID);
-            $oDb->execute($sQ);
+            $sQ = "delete from oxuserbasketitems where oxbasketid = ?";
+            $this->database->execute($sQ, [$sOXID]);
         }
 
         return $blDelete;

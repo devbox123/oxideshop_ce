@@ -87,9 +87,8 @@ class oxNewsletter extends oxBase
         $blDeleted = parent::delete($sOxId);
 
         if ($blDeleted) {
-            $oDb = oxDb::getDb();
-            $sDelete = "delete from oxobject2group where oxobject2group.oxshopid = '" . $this->getShopId() . "' and oxobject2group.oxobjectid = " . $oDb->quote($sOxId);
-            $oDb->execute($sDelete);
+            $sDelete = "delete from oxobject2group where oxobject2group.oxshopid = ? and oxobject2group.oxobjectid = ?";
+            $this->database->execute($sDelete, [$this->getShopId(), $sOxId]);
         }
 
         return $blDeleted;

@@ -74,7 +74,7 @@ class oxVoucherSerie extends oxBase
             $this->_oGroups->init('oxgroups');
             $sViewName = getViewName("oxgroups");
             $sSelect = "select gr.* from {$sViewName} as gr, oxobject2group as o2g where
-                         o2g.oxobjectid = " . oxDb::getDb()->quote($this->getId()) . " and gr.oxid = o2g.oxgroupsid ";
+                         o2g.oxobjectid = " . $this->database->quote($this->getId()) . " and gr.oxid = o2g.oxgroupsid ";
             $this->_oGroups->selectString($sSelect);
         }
 
@@ -86,9 +86,8 @@ class oxVoucherSerie extends oxBase
      */
     public function unsetUserGroups()
     {
-        $oDb = oxDb::getDb();
-        $sDelete = 'delete from oxobject2group where oxobjectid = ' . $oDb->quote($this->getId());
-        $oDb->execute($sDelete);
+        $sDelete = 'delete from oxobject2group where oxobjectid = ?';
+        $this->database->execute($sDelete, [$this->getId()]);
     }
 
     /**
@@ -96,9 +95,8 @@ class oxVoucherSerie extends oxBase
      */
     public function unsetDiscountRelations()
     {
-        $oDb = oxDb::getDb();
-        $sDelete = 'delete from oxobject2discount where oxobject2discount.oxdiscountid = ' . $oDb->quote($this->getId());
-        $oDb->execute($sDelete);
+        $sDelete = 'delete from oxobject2discount where oxobject2discount.oxdiscountid = ?';
+        $this->database->execute($sDelete, [$this->getId()]);
     }
 
     /**
@@ -109,7 +107,7 @@ class oxVoucherSerie extends oxBase
     public function getVoucherList()
     {
         $oVoucherList = oxNew('oxvoucherlist');
-        $sSelect = 'select * from oxvouchers where oxvoucherserieid = ' . oxDb::getDb()->quote($this->getId());
+        $sSelect = 'select * from oxvouchers where oxvoucherserieid = ' . $this->database->quote($this->getId());
         $oVoucherList->selectString($sSelect);
 
         return $oVoucherList;
@@ -120,9 +118,8 @@ class oxVoucherSerie extends oxBase
      */
     public function deleteVoucherList()
     {
-        $oDb = oxDb::getDb();
-        $sDelete = 'delete from oxvouchers where oxvoucherserieid = ' . $oDb->quote($this->getId());
-        $oDb->execute($sDelete);
+        $sDelete = 'delete from oxvouchers where oxvoucherserieid = ?';
+        $this->database->execute($sDelete, [$this->getId()]);
     }
 
     /**
@@ -134,12 +131,11 @@ class oxVoucherSerie extends oxBase
     {
         $aStatus = array();
 
-        $oDb = oxDb::getDb();
-        $sQuery = 'select count(*) as total from oxvouchers where oxvoucherserieid = ' . $oDb->quote($this->getId());
-        $aStatus['total'] = $oDb->getOne($sQuery);
+        $sQuery = 'select count(*) as total from oxvouchers where oxvoucherserieid = ?';
+        $aStatus['total'] = $this->database->getOne($sQuery, [$this->getId()]);
 
-        $sQuery = 'select count(*) as used from oxvouchers where oxvoucherserieid = ' . $oDb->quote($this->getId()) . ' and ((oxorderid is not NULL and oxorderid != "") or (oxdateused is not NULL and oxdateused != 0))';
-        $aStatus['used'] = $oDb->getOne($sQuery);
+        $sQuery = 'select count(*) as used from oxvouchers where oxvoucherserieid = ? and ((oxorderid is not NULL and oxorderid != "") or (oxdateused is not NULL and oxdateused != 0))';
+        $aStatus['used'] = $this->database->getOne($sQuery, [$this->getId()]);
 
         $aStatus['available'] = $aStatus['total'] - $aStatus['used'];
 

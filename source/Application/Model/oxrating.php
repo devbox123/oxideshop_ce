@@ -55,15 +55,14 @@ class oxRating extends oxBase
      */
     public function allowRating($sUserId, $sType, $sObjectId)
     {
-        $oDb = oxDb::getDb();
         $myConfig = $this->config;
 
         if ($iRatingLogsTimeout = $myConfig->getConfigParam('iRatingLogsTimeout')) {
             $sExpDate = date('Y-m-d H:i:s', oxRegistry::get("oxUtilsDate")->getTime() - $iRatingLogsTimeout * 24 * 60 * 60);
-            $oDb->execute("delete from oxratings where oxtimestamp < '$sExpDate'");
+            $this->database->execute("delete from oxratings where oxtimestamp < ?", [$sExpDate]);
         }
-        $sSelect = "select oxid from oxratings where oxuserid = " . $oDb->quote($sUserId) . " and oxtype=" . $oDb->quote($sType) . " and oxobjectid = " . $oDb->quote($sObjectId);
-        if ($oDb->getOne($sSelect)) {
+        $sSelect = "select oxid from oxratings where oxuserid = ? and oxtype= ? and oxobjectid = ?";
+        if ($this->database->getOne($sSelect, [$sUserId, $sType, $sObjectId])) {
             return false;
         }
 
@@ -82,26 +81,15 @@ class oxRating extends oxBase
      */
     public function getRatingAverage($sObjectId, $sType, $aIncludedObjectsIds = null)
     {
-        $oDb = oxDb::getDb();
-
-        $sQuerySnipet = '';
         if (is_array($aIncludedObjectsIds) && count($aIncludedObjectsIds) > 0) {
-            $sQuerySnipet = " AND ( `oxobjectid` = " . $oDb->quote($sObjectId) . " OR `oxobjectid` in ('" . implode("', '", $aIncludedObjectsIds) . "') )";
+            $sQuerySnipet = " AND ( `oxobjectid` = ? OR `oxobjectid` in ('" . implode("', '", $aIncludedObjectsIds) . "') )";
         } else {
-            $sQuerySnipet = " AND `oxobjectid` = " . $oDb->quote($sObjectId);
+            $sQuerySnipet = " AND `oxobjectid` = ?";
         }
 
-        $sSelect = "
-            SELECT
-                AVG(`oxrating`)
-            FROM `oxreviews`
-            WHERE `oxrating` > 0
-                 AND `oxtype` = " . $oDb->quote($sType)
-                   . $sQuerySnipet . "
-            LIMIT 1";
+        $sSelect = "SELECT AVG(`oxrating`) FROM `oxreviews` WHERE `oxrating` > 0 AND `oxtype` = ? " . $sQuerySnipet . " LIMIT 1";
 
-        $fRating = 0;
-        if ($fRating = $oDb->getOne($sSelect, false, false)) {
+        if ($fRating = $this->database->getOne($sSelect, [$sObjectId, $sType])) {
             $fRating = round($fRating, 1);
         }
 
@@ -119,26 +107,15 @@ class oxRating extends oxBase
      */
     public function getRatingCount($sObjectId, $sType, $aIncludedObjectsIds = null)
     {
-        $oDb = oxDb::getDb();
-
-        $sQuerySnipet = '';
         if (is_array($aIncludedObjectsIds) && count($aIncludedObjectsIds) > 0) {
-            $sQuerySnipet = " AND ( `oxobjectid` = " . $oDb->quote($sObjectId) . " OR `oxobjectid` in ('" . implode("', '", $aIncludedObjectsIds) . "') )";
+            $sQuerySnipet = " AND ( `oxobjectid` = ? OR `oxobjectid` in ('" . implode("', '", $aIncludedObjectsIds) . "') )";
         } else {
-            $sQuerySnipet = " AND `oxobjectid` = " . $oDb->quote($sObjectId);
+            $sQuerySnipet = " AND `oxobjectid` = ?";
         }
 
-        $sSelect = "
-            SELECT
-                COUNT(*)
-            FROM `oxreviews`
-            WHERE `oxrating` > 0
-                AND `oxtype` = " . $oDb->quote($sType)
-                   . $sQuerySnipet . "
-            LIMIT 1";
+        $sSelect = "SELECT COUNT(*) FROM `oxreviews` WHERE `oxrating` > 0 AND `oxtype` = ? " . $sQuerySnipet . " LIMIT 1";
 
-        $iCount = 0;
-        $iCount = $oDb->getOne($sSelect, false, false);
+        $iCount = $this->database->getOne($sSelect, [$sObjectId, $sType]);
 
         return $iCount;
     }

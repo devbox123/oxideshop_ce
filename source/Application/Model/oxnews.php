@@ -120,8 +120,7 @@ class oxNews extends oxI18n
         }
 
         if ($blDelete = parent::delete($sOxid)) {
-            $oDb = oxDb::getDb();
-            $oDb->execute("delete from oxobject2group where oxobject2group.oxobjectid = " . $oDb->quote($sOxid));
+            $this->database->execute("delete from oxobject2group where oxobject2group.oxobjectid = ?", [$sOxid]);
         }
 
         return $blDelete;

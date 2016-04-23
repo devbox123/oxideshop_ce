@@ -150,10 +150,12 @@ class oxOrderArticle extends oxBase implements ArticleInterface
         if ($this->config->getConfigParam('blUseStock')) {
             // get real article stock count
             $iStockCount = $this->_getArtStock($dAddAmount, $blAllowNegativeStock);
-            $oDb = oxDb::getDb();
 
             $oArticle->oxarticles__oxstock = new oxField($iStockCount);
-            $oDb->execute('update oxarticles set oxarticles.oxstock = ' . $oDb->quote($iStockCount) . ' where oxarticles.oxid = ' . $oDb->quote($this->oxorderarticles__oxartid->value));
+            $this->database->execute(
+                'update oxarticles set oxarticles.oxstock = ? where oxarticles.oxid = ?',
+                [$iStockCount, $this->oxorderarticles__oxartid->value]
+            );
             $oArticle->onChange(ACTION_UPDATE_STOCK);
         }
 
@@ -171,11 +173,9 @@ class oxOrderArticle extends oxBase implements ArticleInterface
      */
     protected function _getArtStock($dAddAmount = 0, $blAllowNegativeStock = false)
     {
-        $oDb = oxDb::getDb();
-
         // #1592A. must take real value
-        $sQ = 'select oxstock from oxarticles where oxid = ' . $oDb->quote($this->oxorderarticles__oxartid->value);
-        $iStockCount = ( float ) $oDb->getOne($sQ, false, false);
+        $sQ = 'select oxstock from oxarticles where oxid = ?';
+        $iStockCount = ( float ) $this->database->getOne($sQ, [$this->oxorderarticles__oxartid->value]);
 
         $iStockCount += $dAddAmount;
 
@@ -291,10 +291,9 @@ class oxOrderArticle extends oxBase implements ArticleInterface
             return $this->oxorderarticles__oxartparentid->value;
         }
 
-        $oDb = oxDb::getDb();
         $oArticle = oxNew("oxArticle");
-        $sQ = "select oxparentid from " . $oArticle->getViewName() . " where oxid=" . $oDb->quote($this->getProductId());
-        $this->oxarticles__oxparentid = new oxField($oDb->getOne($sQ));
+        $sQ = "select oxparentid from " . $oArticle->getViewName() . " where oxid=?";
+        $this->oxarticles__oxparentid = new oxField($this->database->getOne($sQ, [$this->getProductId()]));
 
         return $this->oxarticles__oxparentid->value;
     }

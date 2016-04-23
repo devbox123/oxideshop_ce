@@ -9,7 +9,7 @@ class Category extends AbstractList
     {
         $aSessionFilter = \oxRegistry::getSession()->getVariable('session_attrfilter');
 
-        $article = new ListArticle();
+        $article = oxNew(ListArticle::class);
         $sArticleFields = $article->getSelectFields();
 
         $sSelect = $this->_getCategorySelect($sArticleFields, $sCatId, $aSessionFilter);
@@ -18,8 +18,7 @@ class Category extends AbstractList
         //    $sSelect .= " LIMIT $iLimit";
         //}
 
-        $oDb = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
-        $ids = $oDb->getAll($sSelect);
+        $ids = $this->database->getAll($sSelect);
 
         return $this->yieldByIds($ids);
     }
@@ -28,7 +27,7 @@ class Category extends AbstractList
     {
         $aSessionFilter = \oxRegistry::getSession()->getVariable('session_attrfilter');
 
-        $article = new ListArticle();
+        $article = oxNew(ListArticle::class);
         $sArticleFields = $article->getSelectFields();
 
         $sSelect = $this->_getCategorySelect($sArticleFields, $sCatId, $aSessionFilter);
@@ -37,8 +36,7 @@ class Category extends AbstractList
         //    $sSelect .= " LIMIT $iLimit";
         //}
 
-        $oDb = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
-        $ids = $oDb->getAll($sSelect);
+        $ids = $this->database->getAll($sSelect);
 
         return array_column($ids, 'OXID');
     }
@@ -47,7 +45,7 @@ class Category extends AbstractList
     {
         $aSessionFilter = \oxRegistry::getSession()->getVariable('session_attrfilter');
 
-        $article = new ListArticle();
+        $article = oxNew(ListArticle::class);
         $sArticleFields = $article->getSelectFields();
 
         $sSelect = $this->_getCategorySelect($sArticleFields, $sCatId, $aSessionFilter);
@@ -59,8 +57,7 @@ class Category extends AbstractList
         //    $sSelect .= " LIMIT $iLimit";
         //}
 
-        $oDb = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
-        return $oDb->getOne($sSelect);
+        return $this->database->getOne($sSelect);
     }
 
     /**
@@ -77,7 +74,7 @@ class Category extends AbstractList
         $sArticleTable = getViewName('oxarticles');
         $sO2CView = getViewName('oxobject2category');
 
-        $article = new ListArticle();
+        $article = oxNew(ListArticle::class);
 
         // ----------------------------------
         // sorting
@@ -94,12 +91,10 @@ class Category extends AbstractList
             $sFilterSql = $this->_getFilterSql($sCatId, $aSessionFilter[$sCatId][$iLang]);
         }
 
-        $oDb = \oxDb::getDb();
-
         $sSelect = "SELECT $sArticleTable.oxid FROM $sO2CView as oc left join $sArticleTable
                     ON $sArticleTable.oxid = oc.oxobjectid
                     WHERE " . $article->getSqlActiveSnippet() . " and $sArticleTable.oxparentid = ''
-                    and oc.oxcatnid = " . $oDb->quote($sCatId) . " $sFilterSql ORDER BY $sSorting oc.oxpos, oc.oxobjectid ";
+                    and oc.oxcatnid = " . $this->database->quote($sCatId) . " $sFilterSql ORDER BY $sSorting oc.oxpos, oc.oxobjectid ";
 
         return $sSelect;
     }
@@ -115,7 +110,7 @@ class Category extends AbstractList
     protected function _getFilterSql($sCatId, $aFilter)
     {
         $sArticleTable = getViewName('oxarticles');
-        $aIds = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC)->getAll($this->_getFilterIdsSql($sCatId, $aFilter));
+        $aIds = $this->database->getAll($this->_getFilterIdsSql($sCatId, $aFilter));
         $sIds = '';
 
         if ($aIds) {
@@ -123,7 +118,7 @@ class Category extends AbstractList
                 if ($sIds) {
                     $sIds .= ', ';
                 }
-                $sIds .= \oxDb::getDb()->quote(current($aArt));
+                $sIds .= $this->database->quote(current($aArt));
             }
 
             if ($sIds) {
@@ -153,14 +148,13 @@ class Category extends AbstractList
         $sFilter = '';
         $iCnt = 0;
 
-        $oDb = \oxDb::getDb();
         foreach ($aFilter as $sAttrId => $sValue) {
             if ($sValue) {
                 if ($sFilter) {
                     $sFilter .= ' or ';
                 }
-                $sValue = $oDb->quote($sValue);
-                $sAttrId = $oDb->quote($sAttrId);
+                $sValue = $this->database->quote($sValue);
+                $sAttrId = $this->database->quote($sAttrId);
 
                 $sFilter .= "( oa.oxattrid = {$sAttrId} and oa.oxvalue = {$sValue} )";
                 $iCnt++;

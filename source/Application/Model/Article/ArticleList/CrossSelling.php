@@ -7,14 +7,12 @@ class CrossSelling extends AbstractList
 {
     public function getById($sArticleId)
     {
-        $article = new ListArticle();
+        $article = oxNew(ListArticle::class);
 
         $sArticleTable = $article->getViewName();
-        $sArticleId = \oxDb::getDb()->quote($sArticleId);
 
-        $sSelect = "SELECT $sArticleTable.oxid
-                        FROM $sArticleTable INNER JOIN oxobject2article ON oxobject2article.oxobjectid=$sArticleTable.oxid ";
-        $sSelect .= "WHERE oxobject2article.oxarticlenid = $sArticleId ";
+        $sSelect = "SELECT $sArticleTable.oxid FROM $sArticleTable INNER JOIN oxobject2article ON oxobject2article.oxobjectid=$sArticleTable.oxid ";
+        $sSelect .= "WHERE oxobject2article.oxarticlenid = ?";
         $sSelect .= " AND " . $article->getSqlActiveSnippet();
 
         // #525 bidirectional cross selling
@@ -39,8 +37,7 @@ class CrossSelling extends AbstractList
                 )";
         }*/
 
-        $oDb = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
-        $ids = $oDb->getAll($sSelect);
+        $ids = $this->database->getAll($sSelect, [$sArticleId]);
 
         return $this->yieldByIds($ids);
     }

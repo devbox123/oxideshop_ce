@@ -35,7 +35,7 @@ class oxSearch extends oxSuperCfg
     protected $_iLanguage = 0;
 
     /**
-     * Class constructor. Executes search lenguage setter
+     * Class constructor. Executes search language setter
      */
     public function __construct($config)
     {

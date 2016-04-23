@@ -95,7 +95,7 @@ class oxRecommList extends oxBase implements oxIUrl
         $iCnt = 0;
         $sSelect = $this->_getArticleSelect();
         if ($sSelect) {
-            $iCnt = oxDb::getDb()->getOne($sSelect);
+            $iCnt = $this->database->getOne($sSelect);
         }
 
         return $iCnt;
@@ -147,9 +147,8 @@ class oxRecommList extends oxBase implements oxIUrl
         }
 
         if (($blDelete = parent::delete($sOXID))) {
-            $oDb = oxDb::getDb();
             // cleaning up related data
-            $oDb->execute("delete from oxobject2list where oxlistid = " . $oDb->quote($sOXID));
+            $this->database->execute("delete from oxobject2list where oxlistid = ?", [$sOXID]);
             $this->onDelete();
         }
 
@@ -169,10 +168,9 @@ class oxRecommList extends oxBase implements oxIUrl
             return false;
         }
 
-        $oDb = oxDb::getDb();
-        $sSelect = 'select oxdesc from oxobject2list where oxlistid = ' . $oDb->quote($this->getId()) . ' and oxobjectid = ' . $oDb->quote($sOXID);
+        $sSelect = 'select oxdesc from oxobject2list where oxlistid = ? and oxobjectid = ?';
 
-        return $oDb->getOne($sSelect);
+        return $this->database->getOne($sSelect, [$this->getId(), $sOXID]);
     }
 
     /**
@@ -185,10 +183,9 @@ class oxRecommList extends oxBase implements oxIUrl
     public function removeArticle($sOXID)
     {
         if ($sOXID) {
-            $oDb = oxDb::getDb();
-            $sQ = "delete from oxobject2list where oxobjectid = " . $oDb->quote($sOXID) . " and oxlistid=" . $oDb->quote($this->getId());
+            $sQ = "delete from oxobject2list where oxobjectid = ? and oxlistid = ?";
 
-            return $oDb->execute($sQ);
+            return $this->database->execute($sQ, [$sOXID, $this->getId()]);
         }
     }
 
@@ -204,11 +201,10 @@ class oxRecommList extends oxBase implements oxIUrl
     {
         $blAdd = false;
         if ($sOXID) {
-            $oDb = oxDb::getDb();
-            if (!$oDb->getOne("select oxid from oxobject2list where oxobjectid=" . $oDb->quote($sOXID) . " and oxlistid=" . $oDb->quote($this->getId()), false, false)) {
+            if (!$this->database->getOne("select oxid from oxobject2list where oxobjectid = ? and oxlistid = ?", [$sOXID, $this->getId()])) {
                 $sUid = oxUtilsObject::getInstance()->generateUID();
-                $sQ = "insert into oxobject2list ( oxid, oxobjectid, oxlistid, oxdesc ) values ( '$sUid', " . $oDb->quote($sOXID) . ", " . $oDb->quote($this->getId()) . ", " . $oDb->quote($sDesc) . " )";
-                $blAdd = $oDb->execute($sQ);
+                $sQ = "insert into oxobject2list ( oxid, oxobjectid, oxlistid, oxdesc ) values (?,?,?,?)";
+                $blAdd = $this->database->execute($sQ, [$sUid, $sOXID, $this->getId(), $sDesc]);
             }
         }
 
@@ -348,7 +344,7 @@ class oxRecommList extends oxBase implements oxIUrl
 
             $sPartial = substr($sSelect, strpos($sSelect, ' from '));
             $sSelect = "select count( distinct rl.oxid ) $sPartial ";
-            $iCnt = oxDb::getDb()->getOne($sSelect);
+            $iCnt = $this->database->getOne($sSelect);
         }
 
         return $iCnt;

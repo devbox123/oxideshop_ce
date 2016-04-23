@@ -41,7 +41,7 @@ class TopFive extends AbstractList
 
         $iLimit = 5;
 
-        $article = new ListArticle();
+        $article = oxNew(ListArticle::class);
 
         $sArticleTable = getViewName('oxarticles');
 
@@ -50,8 +50,7 @@ class TopFive extends AbstractList
         $sSelect .= "and $sArticleTable.oxparentid = '' and $sArticleTable.oxsoldamount>0 ";
         $sSelect .= "order by $sArticleTable.oxsoldamount desc limit $iLimit";
 
-        $oDb = \oxDb::getDb(\oxDb::FETCH_MODE_ASSOC);
-        $ids = $oDb->getAll($sSelect);
+        $ids = $this->database->getAll($sSelect);
 
         return $this->yieldByIds($ids);
     }

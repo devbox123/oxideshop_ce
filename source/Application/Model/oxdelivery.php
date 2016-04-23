@@ -135,9 +135,9 @@ class oxDelivery extends oxI18n
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config)
+    public function __construct($config, $database)
     {
-        parent::__construct($config);
+        parent::__construct($config, $database);
         $this->setDelVatOnTop($this->config->getConfigParam('blDeliveryVatOnTop'));
     }
 
@@ -159,9 +159,8 @@ class oxDelivery extends oxI18n
     public function getArticles()
     {
         if (is_null($this->_aArtIds)) {
-            $oDb = oxDb::getDb();
-            $sQ = "select oxobjectid from oxobject2delivery where oxdeliveryid=" . $oDb->quote($this->getId()) . " and oxtype = 'oxarticles'";
-            $aArtIds = $oDb->getCol($sQ);
+            $sQ = "select oxobjectid from oxobject2delivery where oxdeliveryid= ? and oxtype = 'oxarticles'";
+            $aArtIds = $this->database->getCol($sQ, [$this->getId()]);
             $this->_aArtIds = $aArtIds;
         }
 
@@ -176,9 +175,8 @@ class oxDelivery extends oxI18n
     public function getCategories()
     {
         if (is_null($this->_aCatIds)) {
-            $oDb = oxDb::getDb();
-            $sQ = "select oxobjectid from oxobject2delivery where oxdeliveryid=" . $oDb->quote($this->getId()) . " and oxtype = 'oxcategories'";
-            $aCatIds = $oDb->getCol($sQ);
+            $sQ = "select oxobjectid from oxobject2delivery where oxdeliveryid=? and oxtype = 'oxcategories'";
+            $aCatIds = $this->database->getCol($sQ, [$this->getId()]);
             $this->_aCatIds = $aCatIds;
         }
 
@@ -318,9 +316,8 @@ class oxDelivery extends oxI18n
             return false;
         }
 
-        $oDb = oxDb::getDb();
-        $sQ = "delete from `oxobject2delivery` where `oxobject2delivery`.`oxdeliveryid` = " . $oDb->quote($sOxId);
-        $oDb->execute($sQ);
+        $sQ = "delete from `oxobject2delivery` where `oxobject2delivery`.`oxdeliveryid` = ?";
+        $this->database->execute($sQ, [$sOxId]);
 
         return parent::delete($sOxId);
     }
@@ -492,9 +489,8 @@ class oxDelivery extends oxI18n
      */
     public function getIdByName($sTitle)
     {
-        $oDb = oxDb::getDb();
-        $sQ = "SELECT `oxid` FROM `" . getViewName('oxdelivery') . "` WHERE `oxtitle` = " . $oDb->quote($sTitle);
-        $sId = $oDb->getOne($sQ);
+        $sQ = "SELECT `oxid` FROM `" . getViewName('oxdelivery') . "` WHERE `oxtitle` = ?";
+        $sId = $this->database->getOne($sQ, [$sTitle]);
 
         return $sId;
     }
@@ -508,7 +504,6 @@ class oxDelivery extends oxI18n
     {
         if ($this->_aCountriesISO === null) {
 
-            $oDb = oxDb::getDb();
             $this->_aCountriesISO = array();
 
             $sSelect = "
@@ -516,10 +511,10 @@ class oxDelivery extends oxI18n
                     `oxcountry`.`oxisoalpha2`
                 FROM `oxcountry`
                     LEFT JOIN `oxobject2delivery` ON `oxobject2delivery`.`oxobjectid` = `oxcountry`.`oxid`
-                WHERE `oxobject2delivery`.`oxdeliveryid` = " . $oDb->quote($this->getId()) . "
+                WHERE `oxobject2delivery`.`oxdeliveryid` = ?
                     AND `oxobject2delivery`.`oxtype` = 'oxcountry'";
 
-            $rs = $oDb->getCol($sSelect);
+            $rs = $this->database->getCol($sSelect, [$this->getId()]);
             $this->_aCountriesISO = $rs;
 
         }
