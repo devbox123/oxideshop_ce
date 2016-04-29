@@ -75,7 +75,7 @@ class oxDeliveryList extends oxList
     /**
      * Calls parent constructor and sets home country
      */
-    public function __construct($config)
+    public function __construct(oxConfig $config)
     {
         parent::__construct($config, 'oxdelivery');
 
@@ -275,7 +275,7 @@ class oxDeliveryList extends oxList
                     $aFittingDelSets[$sDeliverySetId] = $oDeliverySet;
                 } else {
                     // return collected fitting deliveries
-                    oxRegistry::getSession()->setVariable('sShipSet', $sDeliverySetId);
+                    $this->session->setVariable('sShipSet', $sDeliverySetId);
 
                     return $this->_aDeliveries;
                 }

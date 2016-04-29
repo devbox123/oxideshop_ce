@@ -20,6 +20,8 @@
  * @version   OXID eShop CE
  */
 
+use OxidEsales\Eshop\Core\DatabaseInterface;
+
 if (!defined('OXTAGCLOUD_MINFONT')) {
     define('OXTAGCLOUD_MINTAGLENGTH', 4);
     define('OXTAGCLOUD_STARTPAGECOUNT', 20);
@@ -50,7 +52,7 @@ class oxTagList extends oxI18n implements oxITagList
     /**
      * Instantiates oxtagset object
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config, $database);
         $this->_oTagSet = oxNew('oxtagset');

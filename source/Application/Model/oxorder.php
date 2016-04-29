@@ -19,6 +19,7 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseInterface;
 use OxidEsales\Eshop\Core\DiContainer;
 use OxidEsales\Eshop\Core\Event\OrderCompleted;
 
@@ -258,7 +259,7 @@ class oxOrder extends oxBase
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config, $database);
 

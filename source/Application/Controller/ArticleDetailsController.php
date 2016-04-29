@@ -1147,7 +1147,7 @@ class ArticleDetailsController extends \oxUBase
         $price = $utils->currency2Float($parameters['price']);
 
         $priceAlarm = oxNew("oxPriceAlarm");
-        $priceAlarm->oxpricealarm__oxuserid = new oxField(oxRegistry::getSession()->getVariable('usr'));
+        $priceAlarm->oxpricealarm__oxuserid = new oxField($this->session->getVariable('usr'));
         $priceAlarm->oxpricealarm__oxemail = new oxField($parameters['email']);
         $priceAlarm->oxpricealarm__oxartid = new oxField($parameters['aid']);
         $priceAlarm->oxpricealarm__oxprice = new oxField($utils->fRound($price, $activeCurrency));

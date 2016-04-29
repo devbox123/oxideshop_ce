@@ -103,7 +103,8 @@ class Registry
      */
     public static function getSession()
     {
-        return self::get("oxSession");
+        return DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_SESSION);
+        //return self::get("oxSession");
     }
 
     /**

@@ -19,7 +19,8 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
-use OxidEsales\Eshop\Core\Request;
+use OxidEsales\Eshop\Core\SessionInterface;
+use OxidEsales\Eshop\Core\RequestInterface;
 use OxidEsales\Eshop\Core\ViewInterface;
 
 use OxidEsales\Eshop\Core\Module\ModuleTemplateBlockPathFormatter;
@@ -62,16 +63,16 @@ class oxUtilsView extends oxSuperCfg implements ViewInterface
 
 
     /**
-     * @var Request
+     * @var RequestInterface
      */
     protected $request;
 
     /**
-     * @var \oxSession
+     * @var SessionInterface
      */
     protected $session;
 
-    public function __construct($config, $request, $session)
+    public function __construct(oxConfig $config, RequestInterface $request, SessionInterface $session)
     {
         parent::__construct($config);
 

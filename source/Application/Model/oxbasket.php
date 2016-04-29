@@ -24,7 +24,7 @@
  * Basket manager
  *
  */
-class oxBasket extends oxSuperCfg
+class oxBasket extends oxBase
 {
 
     /**
@@ -286,6 +286,9 @@ class oxBasket extends oxSuperCfg
      * @var bool
      */
     protected $_blSaveToDataBase = null;
+
+    protected $_sCoreTable = 'oxbaskets';
+
 
     /**
      * Enables or disable saving to data base
@@ -1695,14 +1698,40 @@ class oxBasket extends oxSuperCfg
         return $this->isSaveToDataBaseEnabled();
     }
 
+    public function save()
+    {
+        $contents = array();
+        foreach ($this->_aBasketContents as $oBasketItem) {
+            if (!$oBasketItem->isBundle() && !$oBasketItem->isDiscountArticle()) {
+                $contents[] = [
+                    'productId' => $oBasketItem->getProductId(),
+                    'amount' => $oBasketItem->getAmount(),
+                    'selList' => $oBasketItem->getSelList(),
+                    'persParams' => $oBasketItem->getPersParams()
+                ];
+            }
+        }
+        $this->oxbaskets__oxbasket = new oxField(serialize($contents), oxField::T_RAW);
+        parent::save();
+    }
+
     /**
      * Populates current basket from the saved one.
      *
-     * @return null
+     * @return null§
      */
-    public function load()
+    public function load($oxid)
     {
-        $oUser = $this->getBasketUser();
+        parent::load($oxid);
+
+        $basket = unserialize($this->oxbaskets__oxbasket->value);
+        if (is_array($basket)) {
+            foreach ($basket as $item) {
+                $this->addToBasket($item['productId'], $item['amount'], $item['selList'], $item['persParams'], true);
+            }
+        }
+
+        /*$oUser = $this->getBasketUser();
         if (!$oUser) {
             return;
         }
@@ -1719,7 +1748,7 @@ class oxBasket extends oxSuperCfg
             } catch (oxArticleException $oEx) {
                 // caught and ignored
             }
-        }
+        }*/
     }
 
     /**

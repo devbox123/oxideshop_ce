@@ -20,7 +20,8 @@
  * @version   OXID eShop CE
  */
 use OxidEsales\Eshop\Core\Edition\EditionSelector;
-use OxidEsales\Eshop\Core\Request;
+use OxidEsales\Eshop\Core\SessionInterface;
+use OxidEsales\Eshop\Core\RequestInterface;
 use OxidEsales\Eshop\Core\ViewInterface;
 
 /**
@@ -88,16 +89,16 @@ class oxViewConfig extends oxSuperCfg implements ViewInterface
     protected $_sShopLogo = null;
 
     /**
-     * @var Request
+     * @var RequestInterface
      */
     protected $request;
 
     /**
-     * @var \oxSession
+     * @var SessionInterface
      */
     protected $session;
 
-    public function __construct($config, $request, $session)
+    public function __construct(oxConfig $config, RequestInterface $request, SessionInterface $session)
     {
         parent::__construct($config);
 

@@ -5,13 +5,14 @@ namespace OxidEsales\Eshop\Core;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 
-class SymfonySession implements oxSessionInterface
+class SymfonySession implements SessionInterface
 {
     private $symfonySession;
 
     public function __construct()
     {
         $this->symfonySession = new Session(new PhpBridgeSessionStorage());
+        $this->symfonySession->start();
     }
 
     public function getVariable($name)
@@ -31,6 +32,9 @@ class SymfonySession implements oxSessionInterface
 
     public function hiddenSid()
     {
+        //$sToken = "<input type=\"hidden\" name=\"stoken\" value=\"" . $this->symfonySession->getSessionChallengeToken() . "\" />";
+
+        //return $sToken;
         return '';
     }
 
@@ -71,5 +75,35 @@ class SymfonySession implements oxSessionInterface
 
     public function delBasket()
     {
+    }
+
+    public function processUrl($sUrl)
+    {
+        return $sUrl;
+    }
+
+    public function isSessionStarted()
+    {
+        return $this->symfonySession->isStarted();
+    }
+
+    public function isHeaderSent()
+    {
+        return headers_sent();
+    }
+
+    public function setForceNewSession()
+    {
+
+    }
+
+    public function start()
+    {
+    }
+
+    public function freeze()
+    {
+        $bl = $this->symfonySession->isStarted();
+        $this->symfonySession->save();
     }
 }

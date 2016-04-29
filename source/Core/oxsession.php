@@ -20,14 +20,14 @@
  * @version   OXID eShop CE
  */
 
-use OxidEsales\Eshop\Core\oxSessionInterface;
+use OxidEsales\Eshop\Core\SessionInterface;
 
 /**
  * Session manager.
  * Performs session managing function, such as variables deletion,
  * initialisation and other session functions.
  */
-class oxSession implements oxSessionInterface //extends oxSuperCfg
+class oxSession implements SessionInterface //extends oxSuperCfg
 {
 
     /**

@@ -19,6 +19,7 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * Vendor manager
@@ -81,7 +82,7 @@ class oxVendor extends oxI18n implements oxIUrl
     /**
      * Class constructor, initiates parent constructor (parent::oxI18n()).
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config, $database);
         $this->setShowArticleCnt($this->config->getConfigParam('bl_perfShowActionCatArticleCnt'));

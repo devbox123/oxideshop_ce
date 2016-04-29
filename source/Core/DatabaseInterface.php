@@ -9,6 +9,12 @@ interface DatabaseInterface
     public function getRow($sql, array $params = null);
     public function getOne($sql, array $params = null);
     public function execute($sql, array $params = null);
+
+    /**
+     * @param $sql
+     * @param array|null $params
+     * @return \Generator
+     */
     public function getAll($sql, array $params = null);
     public function startTransaction();
     public function commitTransaction();

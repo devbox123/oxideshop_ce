@@ -656,7 +656,7 @@ class oxwArticleDetails extends oxWidget
     public function getCrossSelling()
     {
         $oProduct = $this->getProduct();
-        return (new CrossSelling())->getById($oProduct->getId());
+        return oxNew(CrossSelling::class)->getById($oProduct->getId());
     }
 
     /**
@@ -702,7 +702,7 @@ class oxwArticleDetails extends oxWidget
     public function getAccessoires()
     {
         $oProduct = $this->getProduct();
-        return (new Accessoires())->getById($oProduct->getId());
+        return oxNew(Accessoires::class)->getById($oProduct->getId());
     }
 
     /**

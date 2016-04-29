@@ -191,16 +191,16 @@ class View extends \oxSuperCfg implements ViewInterface
     protected $_oViewConf = null;
 
     /**
-     * @var Request
+     * @var RequestInterface
      */
     protected $request;
 
     /**
-     * @var \oxSession
+     * @var SessionInterface
      */
     protected $session;
 
-    public function __construct($config, $request, $session)
+    public function __construct(\oxConfig $config, RequestInterface $request, SessionInterface $session)
     {
         parent::__construct($config);
 

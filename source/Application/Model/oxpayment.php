@@ -19,6 +19,7 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * Payment manager.
@@ -118,7 +119,7 @@ class oxPayment extends oxI18n
     /**
      * Class constructor, initiates parent constructor (parent::oxI18n()).
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config, $database);
         $this->setPaymentVatOnTop($this->config->getConfigParam('blPaymentVatOnTop'));

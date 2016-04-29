@@ -241,7 +241,7 @@ class oxList extends oxSuperCfg implements IteratorAggregate, ArrayAccess, Count
      *
      * @param string $sObjectName Associated list item object type
      */
-    public function __construct($config, $sObjectName = null)
+    public function __construct(oxConfig $config, $sObjectName = null)
     {
         parent::__construct($config);
 

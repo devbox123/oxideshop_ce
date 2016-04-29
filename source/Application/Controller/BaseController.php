@@ -727,7 +727,7 @@ class BaseController extends \oxView
 
             // writing to session
             if ($this->request->getRequestParameter('ldtype')) {
-                oxRegistry::getSession()->setVariable('ldtype', $this->_sListDisplayType);
+                $this->session->setVariable('ldtype', $this->_sListDisplayType);
             }
         }
 
@@ -745,7 +745,7 @@ class BaseController extends \oxView
             $this->_sCustomListDisplayType = $this->request->getRequestParameter('ldtype');
 
             if (!$this->_sCustomListDisplayType) {
-                $this->_sCustomListDisplayType = oxRegistry::getSession()->getVariable('ldtype');
+                $this->_sCustomListDisplayType = $this->session->getVariable('ldtype');
             }
         }
 
@@ -916,7 +916,7 @@ class BaseController extends \oxView
         $sortBy = $this->request->getRequestParameter($this->getSortOrderByParameterName());
         $sortOrder = $this->request->getRequestParameter($this->getSortOrderParameterName());
 
-        if ($sortBy && oxDb::getInstance()->isValidFieldName($sortBy) && $sortOrder &&
+        if ($sortBy && $sortOrder &&
             oxRegistry::getUtils()->isValidAlpha($sortOrder) && in_array($stringModifier->strtolower($sortOrder), $sortDirections)
         ) {
             $sorting = array('sortby' => $sortBy, 'sortdir' => $sortOrder);

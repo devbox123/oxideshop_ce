@@ -23,6 +23,8 @@
 namespace OxidEsales\Eshop\Application\Controller\Admin;
 
 use OxidEsales\Eshop\Core\Edition\EditionSelector;
+use OxidEsales\Eshop\Core\SessionInterface;
+use OxidEsales\Eshop\Core\RequestInterface;
 use oxRegistry;
 use oxDb;
 use oxNavigationTree;
@@ -118,7 +120,7 @@ class AdminView extends \oxView
     /**
      * Creates oxshop object and loads shop data, sets title of shop
      */
-    public function __construct($config, $request, $session)
+    public function __construct(oxConfig $config, RequestInterface $request, SessionInterface $session)
     {
         parent::__construct($config, $request, $session);
 

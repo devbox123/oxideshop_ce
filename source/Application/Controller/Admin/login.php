@@ -19,6 +19,8 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\SessionInterface;
+use OxidEsales\Eshop\Core\RequestInterface;
 
 /**
  * Administrator login form.
@@ -32,7 +34,7 @@ class Login extends oxAdminView
     /**
      * Sets value for _sThisAction to "login".
      */
-    public function __construct($config, $request, $session)
+    public function __construct(oxConfig $config, RequestInterface $request, SessionInterface $session)
     {
         parent::__construct($config, $request, $session);
 
@@ -127,8 +129,8 @@ class Login extends oxAdminView
             $oUser = $cmp->getUser();
             $iSubshop = (int) $oUser->oxuser__oxrights->value;
             if ($iSubshop) {
-                oxRegistry::getSession()->setVariable("shp", $iSubshop);
-                oxRegistry::getSession()->setVariable('currentadminshop', $iSubshop);
+                $this->session->setVariable("shp", $iSubshop);
+                $this->session->setVariable('currentadminshop', $iSubshop);
             }
         } catch (oxUserException $oEx) {
             $myUtilsView->addErrorToDisplay('LOGIN_ERROR');

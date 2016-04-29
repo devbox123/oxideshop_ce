@@ -19,6 +19,7 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * User payment manager.
@@ -104,7 +105,7 @@ class oxUserPayment extends oxBase
     /**
      * Class constructor. Sets payment key for encoding sensitive data and
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config, $database);
         $this->_sPaymentKey = oxRegistry::getUtils()->strRot13($this->_sPaymentKey);

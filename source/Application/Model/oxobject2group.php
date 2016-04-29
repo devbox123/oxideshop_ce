@@ -19,6 +19,7 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * Manages object (users, discounts, deliveries...) assignment to groups.
@@ -44,7 +45,7 @@ class oxObject2Group extends oxBase
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config, $database);
         $this->oxobject2group__oxshopid = new oxField($this->config->getShopId(), oxField::T_RAW);

@@ -36,7 +36,7 @@ class oxArticleTagList extends oxI18n implements oxITagList
     /**
      * Instantiates oxTagSet object.
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, $database)
     {
         parent::__construct($config, $database);
         $this->_oTagSet = oxNew('oxTagSet');

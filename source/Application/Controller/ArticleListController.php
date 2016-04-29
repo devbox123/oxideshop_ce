@@ -388,7 +388,7 @@ class ArticleListController extends \oxUBase
             $this->_iAllArtCnt = $articleList->loadPriceArticles($priceFrom, $priceTo, $category);
         } else {
             //$sessionFilter = $this->session->getVariable('session_attrfilter');
-            $list = new Category();
+            $list = oxNew(Category::class);
             $articleList = $list->getById($category->getId());
             $this->_iAllArtCnt = $list->getCountById($category->getId());
         }
@@ -796,7 +796,7 @@ class ArticleListController extends \oxUBase
         $this->_aAttributes = false;
 
         if (($category = $this->getActiveCategory())) {
-            $attributes = $category->getAttributes(oxRegistry::getSession()->getVariable('session_attrfilter'));
+            $attributes = $category->getAttributes($this->session->getVariable('session_attrfilter'));
             if (count($attributes)) {
                 $this->_aAttributes = $attributes;
             }
@@ -835,7 +835,7 @@ class ArticleListController extends \oxUBase
     public function getSimilarRecommListIds()
     {
         $category = $this->getActiveCategory();
-        return (new Category())->getIds($category->getId());
+        return oxNew(Category::class)->getIds($category->getId());
     }
 
     /**

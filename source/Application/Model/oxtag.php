@@ -79,7 +79,7 @@ class oxTag extends oxSuperCfg
      *
      * @param string $sTag tag value
      */
-    public function __construct($config, $sTag = null)
+    public function __construct(oxConfig $config, $sTag = null)
     {
         parent::__construct($config);
         if ($sTag !== null) {

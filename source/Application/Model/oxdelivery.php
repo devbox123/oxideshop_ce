@@ -135,7 +135,7 @@ class oxDelivery extends oxI18n
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, $database)
     {
         parent::__construct($config, $database);
         $this->setDelVatOnTop($this->config->getConfigParam('blDeliveryVatOnTop'));

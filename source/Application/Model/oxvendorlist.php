@@ -61,7 +61,7 @@ class oxVendorList extends oxList
     /**
      * Calls parent constructor and defines if Article vendor count is shown
      */
-    public function __construct($config)
+    public function __construct(oxConfig $config)
     {
         parent::__construct($config, 'oxvendor');
         $this->setShowVendorArticleCnt($this->config->getConfigParam('bl_perfShowActionCatArticleCnt'));

@@ -19,6 +19,8 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\SessionInterface;
+use OxidEsales\Eshop\Core\RequestInterface;
 
 /**
  * Error constants
@@ -124,7 +126,7 @@ class DynExportBase extends oxAdminDetails
     /**
      * Calls parent costructor and initializes $this->_sFilePath parameter
      */
-    public function __construct($config, $request, $session)
+    public function __construct(oxConfig $config, RequestInterface $request, SessionInterface $session)
     {
         parent::__construct($config, $request, $session);
 

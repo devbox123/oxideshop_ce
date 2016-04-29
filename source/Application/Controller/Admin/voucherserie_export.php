@@ -95,7 +95,7 @@ class VoucherSerie_Export extends VoucherSerie_Main
      */
     protected function _getExportFileName()
     {
-        $sSessionFileName = oxRegistry::getSession()->getVariable("sExportFileName");
+        $sSessionFileName = $this->session->getVariable("sExportFileName");
         if (!$sSessionFileName) {
             $sSessionFileName = md5($this->session->getId() . oxUtilsObject::getInstance()->generateUId());
             $this->session->setVariable("sExportFileName", $sSessionFileName);

@@ -19,6 +19,7 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * Shopping basket item manager.
@@ -68,7 +69,7 @@ class oxUserBasketItem extends oxBase
     /**
      * Class constructor, initiates parent constructor (parent::oxBase()).
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         $this->setVariantParentBuyable($this->config->getConfigParam('blVariantParentBuyable'));
         parent::__construct($config, $database);

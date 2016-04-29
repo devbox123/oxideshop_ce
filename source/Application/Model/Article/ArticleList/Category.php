@@ -37,8 +37,9 @@ class Category extends AbstractList
         //}
 
         $ids = $this->database->getAll($sSelect);
-
-        return array_column($ids, 'OXID');
+        if ($ids->valid()) {
+            return array_column($ids->current(), 'OXID');
+        }
     }
 
     public function getCountById($sCatId)

@@ -19,7 +19,8 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
-use OxidEsales\Eshop\Core\Request;
+use OxidEsales\Eshop\Core\SessionInterface;
+use OxidEsales\Eshop\Core\RequestInterface;
 use OxidEsales\Eshop\Core\ViewInterface;
 
 /**
@@ -54,12 +55,12 @@ class oxLocator extends oxSuperCfg implements ViewInterface
     protected $_sErrorMessage = null;
 
     /**
-     * @var Request
+     * @var RequestInterface
      */
     protected $request;
 
     /**
-     * @var \oxSession
+     * @var SessionInterface
      */
     protected $session;
 
@@ -69,7 +70,7 @@ class oxLocator extends oxSuperCfg implements ViewInterface
      *
      * @param string $sType locator type
      */
-    public function __construct($config, $request, $session, $sType = null)
+    public function __construct(oxConfig $config, RequestInterface $request, SessionInterface $session, $sType = null)
     {
         parent::__construct($config);
 

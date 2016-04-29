@@ -137,12 +137,12 @@ class oxGbEntry extends oxBase
         if ($myConfig->getConfigParam('blGBModerate')) {
             $oUser = $this->getUser();
             $sSelect .= " and ( oxgbentries.oxactive = '1' ";
-            $sSelect .= $oUser ? " or oxgbentries.oxuserid = ?";
+            $sSelect .= $oUser ? " or oxgbentries.oxuserid = " . $this->database->quote($oUser->getId()) : '';
             $sSelect .= " ) ";
         }
 
         // loading only if there is some data
-        $iRecCnt = (int) $this->database->getOne($sSelect, [$myConfig->getShopId(), $oUser->getId()]);
+        $iRecCnt = (int) $this->database->getOne($sSelect, [$myConfig->getShopId()]);
 
         return $iRecCnt;
     }

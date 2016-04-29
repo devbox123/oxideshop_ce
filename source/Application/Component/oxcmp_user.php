@@ -210,9 +210,9 @@ class oxcmp_user extends oxView
 
             // yes, successful login
             if ($this->isAdmin()) {
-                oxRegistry::getSession()->setVariable('auth', $oUser->oxuser__oxid->value);
+                $this->session->setVariable('auth', $oUser->oxuser__oxid->value);
             } else {
-                oxRegistry::getSession()->setVariable('usr', $oUser->oxuser__oxid->value);
+                $this->session->setVariable('usr', $oUser->oxuser__oxid->value);
             }
         } catch (oxUserException $oEx) {
             // for login component send excpetion text to a custom component (if defined)

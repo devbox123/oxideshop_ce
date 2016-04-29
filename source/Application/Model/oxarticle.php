@@ -3845,13 +3845,15 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     protected function _getAttribsString(&$sAttributeSql, &$iCnt)
     {
+        $params[] = $this->getId();
         // we do not use lists here as we don't need this overhead right now
         $sSelect = 'select oxattrid from oxobject2attribute where oxobject2attribute.oxobjectid=?';
         if ($this->getParentId()) {
             $sSelect .= ' OR oxobject2attribute.oxobjectid=?';
+            $params[] = $this->getParentId();
         }
         $sAttributeSql = '';
-        $aAttributeIds = $this->database->getCol($sSelect, [$this->getId(), $this->getParentId()]);
+        $aAttributeIds = $this->database->getCol($sSelect, $params);
         if (is_array($aAttributeIds) && count($aAttributeIds)) {
             $aAttributeIds = array_unique($aAttributeIds);
             $iCnt = count($aAttributeIds);

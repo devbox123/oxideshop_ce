@@ -97,7 +97,7 @@ class VoucherSerie_Generate extends VoucherSerie_Main
             }
 
             $blRandomNr = ( bool ) $this->session->getVariable("randomVoucherNr");
-            $sVoucherNr = $blRandomNr ? oxUtilsObject::getInstance()->generateUID() : oxRegistry::getSession()->getVariable("voucherNr");
+            $sVoucherNr = $blRandomNr ? oxUtilsObject::getInstance()->generateUID() : $this->session->getVariable("voucherNr");
 
             $oNewVoucher = oxNew("oxvoucher");
             $oNewVoucher->oxvouchers__oxvoucherserieid = new oxField($oVoucherSerie->getId());

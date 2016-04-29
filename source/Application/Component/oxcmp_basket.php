@@ -352,7 +352,10 @@ class oxcmp_basket extends oxView
         $activeView = $this->config->getActiveView();
         $errorDestination = $activeView->getErrorDestination();
 
-        $basket = $this->session->getBasket();
+        /* #var \oxbasket $basket */
+        $basket = oxNew('oxbasket'); //$this->session->getBasket();
+        $basket->load($this->session->getId());
+
         $basketInfo = $basket->getBasketSummary();
 
         $basketItemAmounts = array();
@@ -386,6 +389,8 @@ class oxcmp_basket extends oxView
         if ($basket->getProductsCount() == 0) {
             $basket->setCardId(null);
         }
+
+        $basket->save();
 
         // information that last call was tobasket
         $this->_setLastCall($this->_getLastCallFnc(), $products, $basketInfo);

@@ -44,7 +44,7 @@ class oxModuleInstaller extends oxSuperCfg
      * @param oxModuleCache           $oxModuleCache
      * @param ModuleExtensionsCleaner $moduleCleaner
      */
-    public function __construct($config, oxModuleCache $oxModuleCache = null, $moduleCleaner = null)
+    public function __construct(oxConfig $config, oxModuleCache $oxModuleCache = null, $moduleCleaner = null)
     {
         parent::__construct($config);
         $this->setModuleCache($oxModuleCache);

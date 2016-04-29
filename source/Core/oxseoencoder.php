@@ -141,13 +141,13 @@ class oxSeoEncoder extends oxSuperCfg
         parent::__construct($config);
 
         //$myConfig = $this->config;
-        //if (!self::$_sSeparator) {
-        //    $this->setSeparator($myConfig->getConfigParam('sSEOSeparator'));
-        //}
-        //if (!self::$_sPrefix) {
-        //    $this->setPrefix($myConfig->getConfigParam('sSEOuprefix'));
-        //}
-        //$this->setReservedWords($myConfig->getConfigParam('aSEOReservedWords'));
+        if (!self::$_sSeparator) {
+            $this->setSeparator($config->getConfigParam('sSEOSeparator'));
+        }
+        if (!self::$_sPrefix) {
+            $this->setPrefix($config->getConfigParam('sSEOuprefix'));
+        }
+        $this->setReservedWords($config->getConfigParam('aSEOReservedWords'));
     }
 
     /**

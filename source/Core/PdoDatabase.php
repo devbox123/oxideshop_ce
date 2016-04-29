@@ -44,10 +44,17 @@ class PdoDatabase implements DatabaseInterface
         return $statement->rowCount();
     }
 
+    /**
+     * @param $sql
+     * @param array|null $params
+     * @return \Generator
+     */
     public function getAll($sql, array $params = null)
     {
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
+
+        //return $statement->fetchAll();
 
         while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             yield $result;

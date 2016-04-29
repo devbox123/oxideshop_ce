@@ -290,7 +290,7 @@ class Shop_Main extends oxAdminDetails
      * @param oxShop   $shop
      * @param string   $shopId
      */
-    protected function updateShopInformation($config, $shop, $shopId)
+    protected function updateShopInformation(oxConfig $config, $shop, $shopId)
     {
     }
 }

@@ -19,6 +19,7 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\DatabaseInterface;
 
 /**
  * Wrapping manager.
@@ -62,7 +63,7 @@ class oxWrapping extends oxI18n
      * Class constructor, initiates parent constructor (parent::oxBase()), loads
      * base shop objects.
      */
-    public function __construct($config, $database)
+    public function __construct(oxConfig $config, DatabaseInterface $database)
     {
         parent::__construct($config, $database);
 
