@@ -107,20 +107,6 @@ class View extends \oxSuperCfg implements ViewInterface
     protected static $_blExecuted = false;
 
     /**
-     * Trusted shop id
-     *
-     * @var string
-     */
-    protected $_sTrustedShopId = null;
-
-    /**
-     * Trusted shop id for excellence product
-     *
-     * @var string
-     */
-    protected $_sTSExcellenceId = null;
-
-    /**
      * Active charset
      *
      * @var string
@@ -289,7 +275,6 @@ class View extends \oxSuperCfg implements ViewInterface
      * Template variables:
      * <b>isdemoversion</b>, <b>shop</b>, <b>isdemoversion</b>,
      * <b>version</b>,
-     * <b>iShopID_TrustedShops</b>,
      * <b>urlsign</b>
      *
      * @param oxShop $oShop current shop object
@@ -634,59 +619,6 @@ class View extends \oxSuperCfg implements ViewInterface
     public function getAdditionalParams()
     {
         return oxRegistry::get("oxUtilsUrl")->processUrl('', false);
-    }
-
-    /**
-     * Returns shop id in classic trusted shops
-     *
-     * @return string
-     */
-    public function getTrustedShopId()
-    {
-        if ($this->_sTrustedShopId == null) {
-            $this->_sTrustedShopId = false;
-            $oConfig = $this->config;
-            $aTsType = $oConfig->getConfigParam('tsSealType');
-            $sTsActive = $oConfig->getConfigParam('tsSealActive');
-            $aTrustedShopIds = $oConfig->getConfigParam('iShopID_TrustedShops');
-            $iLangId = (int) oxRegistry::getLang()->getBaseLanguage();
-            if ($sTsActive && $aTrustedShopIds && $aTsType[$iLangId] == 'CLASSIC') {
-                // compatibility to old data
-                if (!is_array($aTrustedShopIds) && $iLangId == 0) {
-                    $this->_sTrustedShopId = $aTrustedShopIds;
-                }
-                if (is_array($aTrustedShopIds)) {
-                    $this->_sTrustedShopId = $aTrustedShopIds[$iLangId];
-                }
-                if (strlen($this->_sTrustedShopId) != 33 || substr($this->_sTrustedShopId, 0, 1) != 'X') {
-                    $this->_sTrustedShopId = false;
-                }
-            }
-        }
-
-        return $this->_sTrustedShopId;
-    }
-
-    /**
-     * Returns shop id in trusted shops if excellence product is ordered
-     *
-     * @return string
-     */
-    public function getTSExcellenceId()
-    {
-        if ($this->_sTSExcellenceId == null) {
-            $this->_sTSExcellenceId = false;
-            $oConfig = $this->config;
-            $aTsType = $oConfig->getConfigParam('tsSealType');
-            $sTsActive = $oConfig->getConfigParam('tsSealActive');
-            $aTrustedShopIds = $oConfig->getConfigParam('iShopID_TrustedShops');
-            $iLangId = (int) oxRegistry::getLang()->getBaseLanguage();
-            if ($sTsActive && $aTrustedShopIds && $aTsType[$iLangId] == 'EXCELLENCE') {
-                $this->_sTSExcellenceId = $aTrustedShopIds[$iLangId];
-            }
-        }
-
-        return $this->_sTSExcellenceId;
     }
 
     /**
@@ -1064,7 +996,7 @@ class View extends \oxSuperCfg implements ViewInterface
 
     /**
      * Returns whether to show persistent parameter. Returns true as a default.
-     * 
+     *
      * @param string $persParamKey
      *
      * @return bool

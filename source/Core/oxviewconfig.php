@@ -68,13 +68,6 @@ class oxViewConfig extends oxSuperCfg implements ViewInterface
     protected $_oCountryList = null;
 
     /**
-     * Trusted shop ratings
-     *
-     * @var null
-     */
-    protected $_aTrustedShopRatings = null;
-
-    /**
      * Active theme name
      *
      * @var null
@@ -1196,122 +1189,6 @@ class oxViewConfig extends oxSuperCfg implements ViewInterface
     }
 
     /**
-     * Returns Trusted shops domain name (includes "http://")
-     *
-     * @return string
-     */
-    public function getTsDomain()
-    {
-        $sDomain = false;
-        $aTsConfig = $this->config->getConfigParam("aTsConfig");
-        if (is_array($aTsConfig)) {
-            $sDomain = $aTsConfig["blTestMode"] ? $aTsConfig["sTsTestUrl"] : $aTsConfig["sTsUrl"];
-        }
-
-        return $sDomain;
-    }
-
-    /**
-     * Gets Trusted shops ratings from Trusted shops
-     *
-     * @return array
-     */
-    public function getTsRatings()
-    {
-        if ($this->_aTrustedShopRatings === null) {
-            $sTsId = $this->getTsId();
-            if ($sTsId) {
-                $oTsRatings = oxNew("oxTsRatings");
-                $oTsRatings->setTsId($sTsId);
-                $this->_aTrustedShopRatings = $oTsRatings->getRatings();
-
-                return $this->_aTrustedShopRatings;
-            }
-        }
-
-        return $this->_aTrustedShopRatings;
-    }
-
-    /**
-     * Trusted Shops ratings url
-     *
-     * @return string | bool
-     */
-    public function getTsRatingUrl()
-    {
-        $sUrl = false;
-        $sTsId = $this->getTsId();
-        if ($sTsId) {
-            $sTsUrl = $this->getTsDomain();
-
-            $sLangId = oxRegistry::getLang()->getLanguageAbbr();
-            $aTsConfig = $this->config->getConfigParam("aTsConfig");
-            if (isset($aTsConfig["sTsRatingUri"]) && isset($aTsConfig["sTsRatingUri"][$sLangId])) {
-                $sTsRateUri = $aTsConfig["sTsRatingUri"][$sLangId];
-            } else {
-                $sTsRateUri = false;
-            }
-
-            if ($sTsUrl && $sTsRateUri) {
-                $sUrl = sprintf("{$sTsUrl}/{$sTsRateUri}", $sTsId);
-            }
-        }
-
-        return $sUrl;
-    }
-
-    /**
-     * Returns true if Trusted Shops feature is On
-     *
-     * @param string $sType type of element to check
-     *
-     * @return bool
-     */
-    public function showTs($sType)
-    {
-        $blShow = false;
-        switch ($sType) {
-            case "WIDGET":
-                $blShow = (bool) $this->config->getConfigParam("blTsWidget");
-                break;
-            case "THANKYOU":
-                $blShow = (bool) $this->config->getConfigParam("blTsThankyouReview");
-                break;
-            case "ORDEREMAIL":
-                $blShow = (bool) $this->config->getConfigParam("blTsOrderEmailReview");
-                break;
-            case "ORDERCONFEMAIL":
-                $blShow = (bool) $this->config->getConfigParam("blTsOrderSendEmailReview");
-                break;
-        }
-
-        return $blShow;
-    }
-
-    /**
-     * Returns Trusted Shops id
-     *
-     * @return string
-     */
-    public function getTsId()
-    {
-        $sTsId = false;
-        $oConfig = $this->config;
-        $aLangIds = $oConfig->getConfigParam("aTsLangIds");
-        $aActInfo = $oConfig->getConfigParam("aTsActiveLangIds");
-
-        // mapping with language id
-        $sLangId = oxRegistry::getLang()->getLanguageAbbr();
-        if (isset($aActInfo[$sLangId]) && $aActInfo[$sLangId] &&
-            isset($aLangIds[$sLangId]) && $aLangIds[$sLangId]
-        ) {
-            $sTsId = $aLangIds[$sLangId];
-        }
-
-        return $sTsId;
-    }
-
-    /**
      * true if blocks javascript code be enabled in templates
      *
      * @return bool
@@ -1328,15 +1205,9 @@ class oxViewConfig extends oxSuperCfg implements ViewInterface
      */
     public function getPasswordLength()
     {
-        $iPasswordLength = 6;
+        $inputValidator = oxRegistry::get('oxInputValidator');
 
-        $oConfig = $this->config;
-
-        if ($oConfig->getConfigParam("iPasswordLength")) {
-            $iPasswordLength = $oConfig->getConfigParam("iPasswordLength");
-        }
-
-        return $iPasswordLength;
+        return $inputValidator->getPasswordLength();
     }
 
     /**
