@@ -439,7 +439,6 @@ class Unit_Core_oxlistTest extends OxidTestCase
         $iTotal = $oList->count();
         $iCount = 0;
 
-        $oList->rewind();
         while ($oList->valid()) {
             $iCount++;
             $oList->next();
@@ -467,7 +466,7 @@ class Unit_Core_oxlistTest extends OxidTestCase
             }
         }
         $this->assertEquals(3, $oList->current());
-        $oList->rewind();
+        reset($oList);
         $this->assertEquals(1, $oList->current());
     }
 

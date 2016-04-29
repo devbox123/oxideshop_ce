@@ -141,9 +141,9 @@ class Unit_Admin_OrderArticleTest extends OxidTestCase
         $oOrder->load('_testOrder');
         $oOrderArticles = $oOrder->getOrderArticles();
 
-        $this->assertEquals(1, $oOrderArticles->count());
-        $this->assertEquals('_testArticle', $oOrderArticles->current()->oxorderarticles__oxartnum->value);
-        $this->assertEquals(4, $oOrderArticles->current()->oxorderarticles__oxamount->value);
+        $this->assertEquals(1, count($oOrderArticles));
+        $this->assertEquals('_testArticle', current($oOrderArticles)->oxorderarticles__oxartnum->value);
+        $this->assertEquals(4, current($oOrderArticles)->oxorderarticles__oxamount->value);
     }
 
     /**
@@ -188,11 +188,11 @@ class Unit_Admin_OrderArticleTest extends OxidTestCase
         $oOrder->load('_testOrder');
         $oOrderArticles = $oOrder->getOrderArticles();
 
-        $this->assertEquals(1, $oOrderArticles->count());
-        $this->assertEquals('_testArticle', $oOrderArticles->current()->oxorderarticles__oxartnum->value);
-        $this->assertEquals(4, $oOrderArticles->current()->oxorderarticles__oxamount->value);
+        $this->assertEquals(1, count($oOrderArticles));
+        $this->assertEquals('_testArticle', current($oOrderArticles)->oxorderarticles__oxartnum->value);
+        $this->assertEquals(4, current($oOrderArticles)->oxorderarticles__oxamount->value);
 
-        $this->setRequestParameter("sArtID", $oOrderArticles->current()->getId());
+        $this->setRequestParameter("sArtID", current($oOrderArticles)->getId());
 
         $oObj->deleteThisArticle();
 
@@ -223,12 +223,12 @@ class Unit_Admin_OrderArticleTest extends OxidTestCase
         $oOrder->load('_testOrder');
         $oOrderArticles = $oOrder->getOrderArticles();
 
-        $this->assertEquals(1, $oOrderArticles->count());
-        $this->assertEquals('_testArticle', $oOrderArticles->current()->oxorderarticles__oxartnum->value);
-        $this->assertEquals(4, $oOrderArticles->current()->oxorderarticles__oxamount->value);
-        $this->assertEquals(0, $oOrderArticles->current()->oxorderarticles__oxstorno->value);
+        $this->assertEquals(1, count($oOrderArticles));
+        $this->assertEquals('_testArticle', current($oOrderArticles)->oxorderarticles__oxartnum->value);
+        $this->assertEquals(4, current($oOrderArticles)->oxorderarticles__oxamount->value);
+        $this->assertEquals(0, current($oOrderArticles)->oxorderarticles__oxstorno->value);
 
-        $this->setRequestParameter("sArtID", $oOrderArticles->current()->getId());
+        $this->setRequestParameter("sArtID", current($oOrderArticles)->getId());
 
         // canceling
         $oObj->storno();
@@ -236,8 +236,8 @@ class Unit_Admin_OrderArticleTest extends OxidTestCase
         $oOrder->load('_testOrder');
         $oOrderArticles = $oOrder->getOrderArticles();
 
-        $this->assertEquals(1, $oOrderArticles->count());
-        $this->assertEquals(1, $oOrderArticles->current()->oxorderarticles__oxstorno->value);
+        $this->assertEquals(1, count($oOrderArticles));
+        $this->assertEquals(1, current($oOrderArticles)->oxorderarticles__oxstorno->value);
 
         $this->setRequestParameter("sArtID", $oOrderArticles->current()->getId());
 

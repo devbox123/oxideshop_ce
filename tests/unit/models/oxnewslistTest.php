@@ -96,8 +96,7 @@ class Unit_Models_oxnewslistTest extends OxidTestCase
 
         $this->assertEquals(2, $oNewsList->count());
 
-        $oNewsList->rewind();
-        $oItem = $oNewsList->current();
+        $oItem = reset($oNewsList);
         $this->assertEquals(2, $oItem->getId());
 
         $oNewsList->next();

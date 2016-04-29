@@ -1978,7 +1978,7 @@ class Unit_Models_oxorderTest extends OxidTestCase
         //$this->assertEquals( 1, count($oArticles) );
         $this->assertEquals(1, $oArticles->count());
 
-        $oArticles->rewind();
+        reset($oArticles);
         $oOrderArticle = $oArticles->current();
         $this->assertEquals('_testOrderId', $oOrderArticle->oxorderarticles__oxorderid->value);
         $this->assertEquals('1126', $oOrderArticle->oxorderarticles__oxartid->value);
@@ -2015,8 +2015,7 @@ class Unit_Models_oxorderTest extends OxidTestCase
         $oOrder->UNITsetOrderArticles($aBasketItems);
 
         $oArticles = $oOrder->getNonPublicVar('_oArticles');
-        $oArticles->rewind();
-        $oOrderArticle = $oArticles->current();
+        $oOrderArticle = reset($oArticles);
 
         //check if article info was copied to oxorderarticle
         $expected = ($this->getConfig()->getEdition() === 'EE') ? '50' : '14';
@@ -2049,8 +2048,7 @@ class Unit_Models_oxorderTest extends OxidTestCase
         $oOrder->UNITsetOrderArticles($aBasketItems);
 
         $oArticles = $oOrder->getNonPublicVar('_oArticles');
-        $oArticles->rewind();
-        $oOrderArticle = $oArticles->current();
+        $oOrderArticle = reset($oArticles);
 
         $this->assertEquals('selectName : selectValue, selectName : selectValue', $oOrderArticle->oxorderarticles__oxselvariant->value);
         $this->assertEquals('Bar-Set ABSINTH', $oOrderArticle->oxorderarticles__oxtitle->value);

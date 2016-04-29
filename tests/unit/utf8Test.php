@@ -664,18 +664,16 @@ class Unit_utf8Test extends OxidTestCase
         //
         $oCountryList = oxNew('oxCountryList');
         $oCountryList->loadActiveCountries();
-        $oCountryList->rewind();
 
-        while ($oCountry = $oCountryList->current()) {
+        foreach ($oCountryList as $oCountry) {
             if ($oCountry->oxcountry__oxtitle->value == 'Österreich') {
                 break;
             }
-            $oCountryList->next();
         }
 
-        $oCountryList->next();
+        next($oCountryList);
 
-        $oCountry = $oCountryList->current();
+        $oCountry = current($oCountryList);
         $this->assertTrue(( bool ) $oCountry);
         $this->assertEquals("_testCountry", $oCountry->getId());
     }

@@ -264,9 +264,8 @@ class Unit_Admin_oxAdminDetailsTest extends OxidTestCase
         $oAdminDetails = oxNew('oxadmindetails');
         $sActCatId = $oAdminDetails->UNITgetCategoryTree('xxx', null);
         $oList = $oAdminDetails->getViewDataElement('xxx');
-        $oList->rewind();
 
-        $oCat = $oList->current();
+        $oCat = reset($oList);
         $this->assertEquals('--', $oCat->oxcategories__oxtitle->value);
         $this->assertEquals($sActCatId, $oCat->getId());
     }

@@ -950,8 +950,7 @@ class Unit_Models_oxUserTest extends OxidTestCase
         // each new created user is assigned to 1 new created exec. payment
         $this->assertEquals(1, count($oUserPayments));
 
-        $oUserPayments->rewind();
-        $oUserPayment = $oUserPayments->current();
+        $oUserPayment = reset($oUserPayments);
 
         $this->assertEquals($oUserPayment->oxuserpayments__oxuserid->value, $oUser->getId());
         $this->assertEquals($oUserPayment->oxpayments__oxdesc->value, 'Kreditkarte'); //important for compatibility to templates
@@ -2463,8 +2462,7 @@ class Unit_Models_oxUserTest extends OxidTestCase
         $this->getSession()->setVariable('deladrid', null);
         $this->getSession()->setVariable('oxaddressid', null);
         $oSelAddress = $oUser->getSelectedAddress();
-        $oUser->oAddresses->rewind();
-        $oAddress = $oUser->oAddresses->current();
+        $oAddress = reset($oUser->oAddresses);
         $this->assertEquals($oAddress->getId(), $oSelAddress->getId());
         $this->assertEquals(1, $oAddress->selected);
     }

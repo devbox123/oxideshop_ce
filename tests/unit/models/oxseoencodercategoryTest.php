@@ -142,8 +142,7 @@ class Unit_Models_oxSeoEncoderCategoryTest extends OxidTestCase
         oxTestModules::addFunction("oxUtilsServer", "getServerVar", "{ \$aArgs = func_get_args(); if ( \$aArgs[0] === 'HTTP_HOST' ) { return '" . $this->getConfig()->getShopUrl() . "'; } elseif ( \$aArgs[0] === 'SCRIPT_NAME' ) { return ''; } else { return \$_SERVER[\$aArgs[0]]; } }");
         $categoryTree = oxNew('oxCategoryList');
         $categoryTree->buildTree(null);
-        $categoryTree->rewind();
-        $categoryTree->next();
+        reset($categoryTree);
         $link = $this->getTestConfig()->getShopEdition() == 'EE' ? 'Fuer-Sie/' : 'Geschenke/';
         $this->assertEquals($this->getConfig()->getShopUrl() . $link, $categoryTree->current()->getLink());
     }
