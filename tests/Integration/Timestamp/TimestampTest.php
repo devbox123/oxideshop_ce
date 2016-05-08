@@ -63,7 +63,6 @@ class TimestampTest extends \OxidTestCase
             array('oxDeliverySet', 'oxdeliveryset', 'oxtitle'),
             array('oxDiscount', 'oxdiscount', 'oxtitle'),
             array('oxFile', 'oxfiles', 'oxfilename'),
-            array('oxGbEntry', 'oxgbentries', 'oxcontent'),
             array('oxGroups', 'oxgroups', 'oxtitle'),
             array('oxLinks', 'oxlinks', 'oxurl'),
             array('oxManufacturer', 'oxmanufacturers', 'oxtitle'),
@@ -193,7 +192,7 @@ class TimestampTest extends \OxidTestCase
     {
         $oDb = oxDb::getDb();
         $sQ = "SHOW FULL tables WHERE Table_Type = 'BASE TABLE'";
-        $aTableNames = $oDb->getArray($sQ);
+        $aTableNames = $oDb->getAll($sQ);
         foreach ($aTableNames as $sKey => $aTable) {
             $sTableName = $aTable[0];
             $sSelectSql = "SHOW COLUMNS FROM `$sTableName` LIKE 'oxtimestamp'";

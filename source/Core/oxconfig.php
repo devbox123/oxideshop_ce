@@ -21,6 +21,7 @@
  */
 
 use OxidEsales\Eshop\Core\Module\ModuleTemplatePathCalculator;
+use OxidEsales\Eshop\Core\exception\DatabaseException;
 
 //max integer
 use OxidEsales\Eshop\Core\oxconfiginterface;
@@ -422,6 +423,9 @@ class oxConfig implements oxconfiginterface
             //$this->_oStart = oxNew('oxStart');
             //$this->_oStart->appInit();
         } catch (oxConnectionException $oEx) {
+            //@TODO: use DatabaseException instead of oxConnectionException
+            $this->_handleDbConnectionException($oEx);
+        } catch (DatabaseException $oEx) {
             $this->_handleDbConnectionException($oEx);
         } catch (oxCookieException $oEx) {
             $this->_handleCookieException($oEx);

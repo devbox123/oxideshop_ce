@@ -15,28 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with OXID eShop Community Edition.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @link      http://www.oxid-esales.com
+ * @link          http://www.oxid-esales.com
  * @copyright (C) OXID eSales AG 2003-2016
- * @version   OXID eShop CE
+ * @version       OXID eShop CE
  */
-namespace Unit\Application\Controller\Admin;
+
+namespace OxidEsales\Eshop\Core\exception;
+
+use oxException;
 
 /**
- * Tests for Admin_Guestbook class
+ * Exception to be thrown on database errors
  */
-class AdminGuestbookTest extends \OxidTestCase
+class DatabaseException extends oxException
 {
 
     /**
-     * Admin_Guestbook::Render() test case
+     * DatabaseException constructor.
      *
-     * @return null
+     * Use this exception to catch and rethrow exceptions of the underlying DBAL.
+     * Provide the caught exception as the third parameter of the constructor to enable exception chaining.
+     *
+     * @param string     $message
+     * @param int        $code
+     * @param \Exception $previous Previous exception thrown by the underlying DBAL
      */
-    public function testRender()
+    public function __construct($message, $code, \Exception $previous)
     {
-        // testing..
-        $oView = oxNew('Admin_Guestbook');
-        $this->assertEquals('admin_guestbook.tpl', $oView->render());
+        parent::__construct($message, $code, $previous);
     }
-
 }
