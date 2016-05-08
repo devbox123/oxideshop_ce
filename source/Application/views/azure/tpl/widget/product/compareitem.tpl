@@ -36,11 +36,11 @@
 
     <form name="tobasket.[{$iIndex}]" [{if $blShowToBasket}]action="[{$oViewConf->getSelfActionLink()}]" method="post"[{else}]action="[{$_productLink}]" method="get"[{/if}]>
         <div class="variants">
-            [{oxhasrights ident="TOBASKET"}]
                 [{if $blShowToBasket}]
                     [{$oViewConf->getHiddenSid()}]
                     [{$oViewConf->getNavFormParams()}]
                     <input type="hidden" name="cl" value="[{$oViewConf->getTopActiveClassName()}]">
+                    <input type="hidden" name="cl" value="basket">
                     [{if $owishid}]
                         <input type="hidden" name="owishid" value="[{$owishid}]">
                     [{/if}]
@@ -60,7 +60,6 @@
                     [{/if}]
                     <input type="hidden" name="pgNr" value="[{$oView->getActPage()}]">
                 [{/if}]
-            [{/oxhasrights}]
 
             [{if $aVariantSelections && $aVariantSelections.selections}]
                 <div class="selectorsBox js-fnSubmit clear" id="compareVariantSelections_[{$iIndex}]">
@@ -81,16 +80,13 @@
         </div>
 
         <div class="tobasket">
-            [{oxhasrights ident="SHOWARTICLEPRICE"}]
                 [{if $product->getTPrice()}]
                     <p class="oldPrice">
                         <strong>[{oxmultilang ident="REDUCED_FROM_2"}] <del>[{oxprice price=$product->getTPrice() currency=$oView->getActCurrency()}]</del></strong>
                     </p>
                 [{/if}]
-            [{/oxhasrights}]
             <div class="tobasketFunction clear">
                 [{block name="widget_product_compareitem_price"}]
-                    [{oxhasrights ident="SHOWARTICLEPRICE"}]
                         [{block name="widget_product_compareitem_price_value"}]
                             [{assign var="sFrom" value=""}]
                             [{assign var="oPrice" value=$product->getPrice()}]
@@ -109,15 +105,12 @@
                             [{include file="page/details/inc/priceinfo.tpl" oDetailsProduct=$product}]
                         [{/if}]
 
-                    [{/oxhasrights}]
                 [{/block}]
                 [{if $blShowToBasket}]
-                    [{oxhasrights ident="TOBASKET"}]
                         <p class="fn clear">
                             <input type="text" name="am" value="1" size="3" autocomplete="off" class="textbox" title="[{oxmultilang ident="QUANTITY" suffix="COLON"}]">
                             <button type="submit" class="submitButton largeButton">[{oxmultilang ident="TO_CART"}]</button>
                         </p>
-                    [{/oxhasrights}]
                 [{else}]
                     <span >
                         <a id="variantMoreInfo_[{$iIndex}]" class="submitButton" href="[{$_productLink}]" onclick="oxid.mdVariants.getMdVariantUrl('mdVariant_[{$iIndex}]'); return false;">[{oxmultilang ident="MORE_INFO"}]</a>

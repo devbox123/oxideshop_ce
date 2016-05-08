@@ -15,7 +15,6 @@
     [{/if}]
     [{capture name=product_price}]
         [{block name="widget_product_listitem_grid_price"}]
-            [{oxhasrights ident="SHOWARTICLEPRICE"}]
                 [{if $product->getTPrice()}]
                     <span class="priceOld">
                         [{oxmultilang ident="REDUCED_FROM_2"}] <del>[{oxprice price=$product->getTPrice() currency=$oView->getActCurrency()}]</del>
@@ -55,7 +54,6 @@
                         <span class="value">[{$product->oxarticles__oxweight->value}] [{oxmultilang ident="KG"}]</span>
                     </span>
                 [{/if}]
-            [{/oxhasrights}]
         [{/block}]
     [{/capture}]
     <a id="[{$iIndex}]" href="[{$_productLink}]" class="titleBlock title fn" title="[{$product->oxarticles__oxtitle->value}] [{$product->oxarticles__oxvarselect->value}]">
@@ -67,16 +65,14 @@
 
     [{block name="widget_product_listitem_grid_tobasket"}]
         <div class="priceBlock">
-            [{oxhasrights ident="TOBASKET"}]
                 [{$smarty.capture.product_price}]
                 [{if !$blShowToBasket}]
                     <a href="[{$_productLink}]" class="toCart button">[{oxmultilang ident="MORE_INFO"}]</a>
                 [{else}]
                     [{assign var="listType" value=$oView->getListType()}]
 
-                    <a href="[{$oView->getLink()|oxaddparams:"listtype=`$listType`&amp;fnc=tobasket&amp;aid=`$product->oxarticles__oxid->value`&amp;am=1"}]" class="toCart button" title="[{oxmultilang ident="TO_CART"}]">[{oxmultilang ident="TO_CART"}]</a>
+                    <a href="[{$oView->getLink()|oxaddparams:"listtype=`$listType`&amp;fnc=tobasket&amp;aid=`$product->oxarticles__oxid->value`&amp;am=1&amp;cl=basket"}]" class="toCart button" title="[{oxmultilang ident="TO_CART"}]">[{oxmultilang ident="TO_CART"}]</a>
                 [{/if}]
-            [{/oxhasrights}]
         </div>
    [{/block}]
 [{/block}]

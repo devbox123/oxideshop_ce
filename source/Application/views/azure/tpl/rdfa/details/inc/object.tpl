@@ -7,13 +7,11 @@
               [{if $oProduct->oxarticles__oxtitle->value}]
                 <div property="gr:name" content="[{$oProduct->oxarticles__oxtitle->value|strip_tags|strip}]" [{if $oView->getActiveLangAbbr()}] xml:lang="[{$oView->getActiveLangAbbr()}]"[{/if}]></div>
                [{/if}]
-               [{oxhasrights ident="SHOWLONGDESCRIPTION"}]
                [{assign var="oLongdesc" value=$oProduct->getLongDescription()}]
                [{if $oLongdesc->value}]
                    [{capture assign="oLongdescEvaluated"}][{oxeval var=$oLongdesc->value}][{/capture}]
                    <div property="gr:description" content="[{oxeval var=$oLongdescEvaluated|strip_tags|strip}]" [{if $oView->getActiveLangAbbr()}] xml:lang="[{$oView->getActiveLangAbbr()}]"[{/if}]></div>
                [{/if}]
-            [{/oxhasrights}]
             <div rel="foaf:depiction v:image" resource="[{$oView->getActPicture()}]"></div>
             <div property="gr:hasStockKeepingUnit" content="[{$oProduct->oxarticles__oxartnum->value}]" datatype="xsd:string"></div>
             [{if $oProduct->oxarticles__oxmpn->value}]

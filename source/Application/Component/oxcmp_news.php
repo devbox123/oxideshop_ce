@@ -70,6 +70,14 @@ class oxcmp_news extends oxView
         $oActNews = oxNew('oxnewslist');
         $oActNews->loadNews(0, $iNewsToLoad);
 
+
+        $oParentView = $this->getParent();
+
+        // add content for main menu
+        $oContentList = oxNew('oxcontentlist');
+        $oContentList->loadMainMenulist();
+        $oParentView->setMenueList($oContentList);
+
         return $oActNews;
     }
 }

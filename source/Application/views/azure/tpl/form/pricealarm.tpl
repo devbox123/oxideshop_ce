@@ -15,7 +15,7 @@
     <ul class="form">
         <li>
             <label>[{oxmultilang ident="YOUR_PRICE"}] ([{$currency->sign}]):</label>
-            <input class="js-oxValidate js-oxValidate_notEmpty" type="text" name="pa[price]" value="[{oxhasrights ident="SHOWARTICLEPRICE"}][{if $product}][{$product->getFPrice()}][{/if}][{/oxhasrights}]" size="20" maxlength="32">
+            <input class="js-oxValidate js-oxValidate_notEmpty" type="text" name="pa[price]" value="[{if $product}][{$product->getFPrice()}][{/if}]" size="20" maxlength="32">
             <p class="oxValidateError">
                 <span class="js-oxError_notEmpty">[{oxmultilang ident="ERROR_MESSAGE_INPUT_NOTALLFIELDS"}]</span>
             </p>

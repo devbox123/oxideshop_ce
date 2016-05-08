@@ -18,7 +18,6 @@
 [{if $oProduct->oxarticles__oxtitle->value}]
     <div property="gr:name" content="[{$oProduct->oxarticles__oxtitle->value|strip_tags|strip}]" [{if $oView->getActiveLangAbbr()}] xml:lang="[{$oView->getActiveLangAbbr()}]"[{/if}]></div>
 [{/if}]
-[{oxhasrights ident="SHOWLONGDESCRIPTION"}]
 [{assign var="oLongdesc" value=$oProduct->getLongDescription()}]
 [{if $oLongdesc->value}]
     [{capture assign="oLongdescEvaluated"}][{oxeval var=$oLongdesc->value}][{/capture}]
@@ -30,7 +29,6 @@
         <div property="gr:hasMPN" content="[{$oProduct->oxarticles__oxmpn->value}]" datatype="xsd:string"></div>
     [{/if}]
 [{/if}]
-[{/oxhasrights}]
 [{include file="rdfa/details/inc/object.tpl"}]
 [{if $oView->getRDFaNormalizedRating()}]
     <div rel="v:hasReview">
@@ -49,9 +47,7 @@
         </div>
     </div>
 [{/if}]
-[{oxhasrights ident="SHOWARTICLEPRICE"}]
 [{include file="rdfa/details/inc/price.tpl"}]
-[{/oxhasrights}]
 [{if $oProduct->getDeliveryDate()}]
     <div property="gr:validFrom" content="[{$oProduct->getDeliveryDate()}]T00:00:00" datatype="xsd:dateTime"></div>
 [{elseif $oView->getRDFaValidityPeriod('iRDFaOfferingValidity')}]
@@ -72,7 +68,6 @@
     <div property="gr:eligibleRegions" content="[{$oRegion->oxcountry__oxisoalpha2->value}]" datatype="xsd:string"></div>
 [{/foreach}]
 [{/if}]
-[{oxhasrights ident="SHOWARTICLEPRICE"}]
 [{include file="rdfa/details/inc/payment.tpl"}]
 [{if $oProduct->oxarticles__oxfreeshipping->value}]
     <div rel="gr:hasPriceSpecification">
@@ -92,6 +87,5 @@
 [{else}]
 [{include file="rdfa/details/inc/delivery.tpl"}]
 [{/if}]
-[{/oxhasrights}]
     <div rel="foaf:depiction v:image" resource="[{$oView->getActPicture()}]"></div>
 </div>

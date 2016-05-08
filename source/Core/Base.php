@@ -212,6 +212,12 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
         parent::__construct($config);
 
         $this->database = $database;
+
+        //
+        $this->reader = new Reader($database);
+        $this->writer = new Writer($database);
+
+
         $myConfig = $this->config;
 
 
@@ -296,23 +302,6 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
                 if (is_object($this->$fieldLongName)) {
                     $this->$fieldLongName = clone $this->$fieldLongName;
                 }
-            }
-        }
-    }
-
-    /**
-     * Clone this object - similar to Copy Constructor.
-     *
-     * @param object $object Object to copy
-     */
-    public function oxClone($object)
-    {
-        $classVariables = get_object_vars($object);
-        while (list($name, $value) = each($classVariables)) {
-            if (is_object($object->$name)) {
-                $this->$name = clone $object->$name;
-            } else {
-                $this->$name = $object->$name;
             }
         }
     }
@@ -563,10 +552,13 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
      */
     public function load($oxid)
     {
+
+        $this->_isLoaded = $this->reader->load($oxid, $this);
+
         //getting at least one field before lazy loading the object
-        $this->_addField('oxid', 0);
-        $query = $this->buildSelectString(array($this->getViewName() . '.oxid' => $oxid));
-        $this->_isLoaded = $this->assignRecord($query);
+        //$this->_addField('oxid', 0);
+        //$query = $this->buildSelectString(array($this->getViewName() . '.oxid' => $oxid));
+        //$this->_isLoaded = $this->assignRecord($query);
 
         return $this->_isLoaded;
     }
@@ -722,6 +714,15 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
      */
     public function save()
     {
+        if (!$this->getId()) {
+            $this->setId();
+        }
+
+        $this->writer->save($this->getId(), $this);
+
+        return $this->getId();
+
+        /*
         if (!is_array($this->_aFieldNames)) {
             return false;
         }
@@ -760,6 +761,7 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
         } else {
             return false;
         }
+        */
     }
 
     /**
@@ -798,9 +800,7 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
             return false;
         }
 
-        $viewName = $this->getCoreTableName();
-        $query = "select {$this->_sExistKey} from {$viewName} where {$this->_sExistKey} = ?";
-        return ( bool ) $this->database->getOne($query, [$oxid]);
+        return $this->writer->exists($oxid, $this);
     }
 
     /**
@@ -1095,6 +1095,17 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
         return $coreTableName . '__' . strtolower($fieldName);
     }
 
+    public function getFieldLongName($fieldName)
+    {
+        return $this->_getFieldLongName($fieldName);
+    }
+
+    public function setFieldValue($field, $value)
+    {
+        $sLongFieldName = $this->_getFieldLongName($field);
+        $this->$sLongFieldName = new oxField($value, oxField::T_RAW);
+    }
+
     /**
      * Sets data field value
      *
@@ -1289,7 +1300,6 @@ class Base extends \oxSuperCfg implements DatabaseAccessInterface
      */
     protected function _insert()
     {
-        $database = oxDb::getDb(oxDb::FETCH_MODE_ASSOC);
         $myConfig = $this->config;
         $myUtils = oxRegistry::getUtils();
 

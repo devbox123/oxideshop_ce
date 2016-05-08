@@ -60,26 +60,19 @@
                         <tr>
                             [{foreach key=iProdNr from=$articleList item=product name=testArt}]
                             <td class="centered">
-                            [{*  if $oxcmp_user}]
-                                  <a id="tonotice_cmp_[{$product->oxarticles__oxid->value}]_[{$smarty.foreach.testArt.iteration}]" href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl="|cat:$oViewConf->getActiveClassName() params="aid=`$product->oxarticles__oxnid->value`&amp;anid=`$product->oxarticles__oxnid->value`&amp;fnc=tonoticelist&amp;am=1"|cat:$oViewConf->getNavUrlParams()}]" rel="nofollow">[{oxmultilang ident="WISH_LIST"}]</a>
-                                  [{if $oViewConf->getShowWishlist()}]
-                                  <a id="towish_cmp_[{$product->oxarticles__oxid->value}]_[{$smarty.foreach.testArt.iteration}]" href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl="|cat:$oViewConf->getActiveClassName() params="aid=`$product->oxarticles__oxnid->value`&anid=`$product->oxarticles__oxnid->value`&amp;fnc=towishlist&amp;am=1"|cat:$oViewConf->getNavUrlParams()}]" rel="nofollow">[{oxmultilang ident="GIFT_REGISTRY"}]</a>
-                                  [{/if}]
-                            [{/if *}]
                                 <form action="[{$oViewConf->getSelfActionLink()}]" method="post">
                                   <div>
                                       [{$oViewConf->getHiddenSid()}]
                                       [{$oViewConf->getNavFormParams()}]
                                       <input type="hidden" name="cl" value="[{$oViewConf->getActiveClassName()}]">
+                                      <input type="hidden" name="cl" value="compare">
                                       <input type="hidden" name="fnc" value="tocomparelist">
                                       <input type="hidden" name="aid" value="[{$product->oxarticles__oxid->value}]">
                                       <input type="hidden" name="anid" value="[{$product->oxarticles__oxnid->value}]">
                                       <input type="hidden" name="pgNr" value="0">
                                       <input type="hidden" name="am" value="1">
                                       <input type="hidden" name="removecompare" value="1">
-                                      [{oxhasrights ident="TOBASKET"}]
                                           <button class="submitButton" id="remove_cmp_[{$product->oxarticles__oxid->value}]" type="submit" title="[{oxmultilang ident="REMOVE"}]" name="send">[{oxmultilang ident="REMOVE"}]</button>
-                                      [{/oxhasrights}]
                                   </div>
                                 </form>
                             </td>

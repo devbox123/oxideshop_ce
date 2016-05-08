@@ -22,6 +22,7 @@
 
 namespace OxidEsales\Eshop\Application\Controller\Admin;
 
+use oxConfig;
 use OxidEsales\Eshop\Core\Edition\EditionSelector;
 use OxidEsales\Eshop\Core\SessionInterface;
 use OxidEsales\Eshop\Core\RequestInterface;

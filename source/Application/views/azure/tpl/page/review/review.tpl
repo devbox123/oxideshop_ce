@@ -23,9 +23,7 @@
                     </div>
 
                     <div class="description">
-                        [{oxhasrights ident="SHOWSHORTDESCRIPTION"}]
                             [{$product->oxarticles__oxshortdesc->value|truncate:160:"..."}]
-                        [{/oxhasrights}]
                     </div>
                 [{/block}]
             </div>

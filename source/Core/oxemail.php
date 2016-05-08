@@ -270,8 +270,9 @@ class oxEmail
     /**
      * Class constructor.
      */
-    public function __construct(MailClientInterface $mailer)
+    public function __construct($config, MailClientInterface $mailer)
     {
+        $this->config = $config;
         $this->mailer = $mailer;
         $this->_blInlineImgEmail = $this->config->getConfigParam('blInlineImgEmail');
     }
@@ -1258,6 +1259,24 @@ class oxEmail
 
         return $blRet;
     }
+
+
+
+    public function getShop()
+    {
+        return $this->_getShop();
+    }
+
+    public function getUser()
+    {
+        return $this->getShop()->getUser();
+    }
+
+    public function getCharset()
+    {
+        return 'utf-8';
+    }
+
 
     /**
      * Get active shop and set global params for it

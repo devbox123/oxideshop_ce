@@ -23,7 +23,7 @@
 /**
  * Defines and returns delivery and billing required fields.
  */
-class oxRequiredAddressFields
+class oxRequiredAddressFields extends oxSuperCfg
 {
 
     /**
@@ -51,8 +51,10 @@ class oxRequiredAddressFields
      * Sets default required fields either from config or from _aDefaultRequiredFields.
      *
      */
-    public function __construct()
+    public function __construct($config)
     {
+        parent::__construct($config);
+
         $this->setRequiredFields($this->_aDefaultRequiredFields);
 
         $aRequiredFields = $this->config->getConfigParam('aMustFillFields');

@@ -36,7 +36,6 @@
     </div>
 
     [{if $oxcmp_basket->getProductsCount()}]
-            [{oxhasrights ident="TOBASKET"}]
             [{if $oxcmp_basket->getProductsCount() gte 8}]
                 [{assign var="scrollableBasket" value=true}]
             [{/if}]
@@ -113,7 +112,6 @@
                        <a href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=basket"}]" class="textButton">[{oxmultilang ident="DISPLAY_BASKET"}]</a>
                     </p>
                 </div>
-            [{/oxhasrights}]
         [{/if}]
 [{/block}]
 [{oxstyle widget=$oView->getClassName()}]

@@ -108,14 +108,7 @@ class oxInputValidator extends oxSuperCfg
             throw $oEx;
         }
 
-        if (!$this->config->getConfigParam('blAllowUnevenAmounts')) {
-            $dAmount = round(( string ) $dAmount);
-        }
-
-        //negative amounts are not allowed
-        //$dAmount = abs($dAmount);
-
-        return $dAmount;
+        return oxNew('oxAmount', $dAmount);
     }
 
     /**
@@ -246,10 +239,8 @@ class oxInputValidator extends oxSuperCfg
     {
         $passwordLength = 6;
 
-        $config = $this->getConfig();
-
-        if ($config->getConfigParam("iPasswordLength")) {
-            $passwordLength = $config->getConfigParam("iPasswordLength");
+        if ($this->config->getConfigParam("iPasswordLength")) {
+            $passwordLength = $this->config->getConfigParam("iPasswordLength");
         }
 
         return $passwordLength;

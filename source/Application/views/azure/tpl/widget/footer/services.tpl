@@ -18,10 +18,8 @@
                 <dd><a href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=invite"}]"
                        rel="nofollow">[{oxmultilang ident="INVITE_YOUR_FRIENDS"}]</a></dd>
             [{/if}]
-            [{oxhasrights ident="TOBASKET"}]
                 <dd><a href="[{oxgetseourl ident=$oViewConf->getBasketLink()}]"
                        rel="nofollow">[{oxmultilang ident="CART"}]</a></dd>
-            [{/oxhasrights}]
             <dd><a href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=account"}]"
                    rel="nofollow">[{oxmultilang ident="ACCOUNT"}]</a></dd>
             <dd><a href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=account_noticelist"}]"

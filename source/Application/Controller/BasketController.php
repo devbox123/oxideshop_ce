@@ -23,6 +23,8 @@
 namespace OxidEsales\Eshop\Application\Controller;
 
 use oxArticle;
+use OxidEsales\Eshop\Application\Command\AddToBasketCommand;
+use OxidEsales\Eshop\Core\DiContainer;
 use oxRegistry;
 use oxList;
 use oxBasketContentMarkGenerator;
@@ -107,6 +109,34 @@ class BasketController extends \oxUBase
      * @var array
      */
     protected $_aSimilarRecommListIds = null;
+
+
+    /**
+     * Last call function name
+     *
+     * @var string
+     */
+    protected $_sLastCallFnc = null;
+
+
+    /**
+     * Parameters which are kept when redirecting after user
+     * puts something to basket
+     *
+     * @var array
+     */
+    public $aRedirectParams = array('cnid', // category id
+        'mnid', // manufacturer id
+        'anid', // active article id
+        'tpl', // spec. template
+        'listtype', // list type
+        'searchcnid', // search category
+        'searchvendor', // search vendor
+        'searchmanufacturer', // search manufacturer
+        'searchtag', // search tag
+        'searchrecomm', // search recomendation
+        'recommid' // recomm. list id
+    );
 
     /**
      * Executes parent::render(), creates list with basket articles
@@ -303,7 +333,7 @@ class BasketController extends \oxUBase
     public function getWrappingList()
     {
         if ($this->_oWrappings === null) {
-            $this->_oWrappings = new oxlist();
+            $this->_oWrappings = oxNew('oxlist');
 
             // load wrapping papers
             if ($this->getViewConfig()->getShowGiftWrapping()) {
@@ -322,7 +352,7 @@ class BasketController extends \oxUBase
     public function getCardList()
     {
         if ($this->_oCards === null) {
-            $this->_oCards = new oxlist();
+            $this->_oCards = oxNew('oxlist');
 
             // load gift cards
             if ($this->getViewConfig()->getShowGiftWrapping()) {
@@ -400,5 +430,302 @@ class BasketController extends \oxUBase
                 }
             }
         }
+    }
+
+
+
+
+    /////////////
+
+    /**
+     * Basket content update controller.
+     * Before adding article - check if client is not a search engine. If
+     * yes - exits method by returning false. If no - executes
+     * oxcmp_basket::_addItems() and puts article to basket.
+     * Returns position where to redirect user browser.
+     *
+     * @param string $sProductId Product ID (default null)
+     * @param double $dAmount    Product amount (default null)
+     * @param array  $aSel       (default null)
+     * @param array  $aPersParam (default null)
+     * @param bool   $blOverride If true amount in basket is replaced by $dAmount otherwise amount is increased by $dAmount (default false)
+     *
+     * @return mixed
+     */
+    public function toBasket($sProductId = null, $dAmount = null, $aSel = null, $aPersParam = null, $blOverride = false)
+    {
+        // adding to basket is not allowed ?
+        $myConfig = $this->config;
+        if (oxRegistry::getUtils()->isSearchEngine()) {
+            return;
+        }
+
+        // adding articles
+        if ($aProducts = $this->_getItems($sProductId, $dAmount, $aSel, $aPersParam, $blOverride)) {
+
+            $bus = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_COMMAND_BUS);
+
+            /* @var \oxBasketItem $oBasketItem */
+            $oBasketItem = $bus->handle(
+                new AddToBasketCommand($aProducts, $this->getBasket())
+            );
+
+            $this->_setLastCallFnc('tobasket');
+
+            // new basket item marker
+            if ($oBasketItem && $myConfig->getConfigParam('iNewBasketItemMessage') != 0) {
+                $oNewItem = new \stdClass();
+                $oNewItem->sTitle = $oBasketItem->getTitle();
+                $oNewItem->sId = $oBasketItem->getProductId();
+                $oNewItem->dAmount = $oBasketItem->getAmount();
+                $oNewItem->dBundledAmount = $oBasketItem->getdBundledAmount();
+
+                // passing article
+                $this->session->setVariable('_newitem', $oNewItem);
+            }
+
+            // redirect to basket
+            return $this->_getRedirectUrl();
+        }
+    }
+
+    /**
+     * Similar to tobasket, except that as product id "bindex" parameter is (can be) taken
+     *
+     * @param string $sProductId Product ID (default null)
+     * @param double $dAmount    Product amount (default null)
+     * @param array  $aSel       (default null)
+     * @param array  $aPersParam (default null)
+     * @param bool   $blOverride If true means increase amount of chosen article (default false)
+     *
+     * @return mixed
+     */
+    public function changebasket(
+        $sProductId = null,
+        $dAmount = null,
+        $aSel = null,
+        $aPersParam = null,
+        $blOverride = true
+    ) {
+        // adding to basket is not allowed ?
+        if (oxRegistry::getUtils()->isSearchEngine()) {
+            return;
+        }
+
+        // fetching item ID
+        if (!$sProductId) {
+            $sBasketItemId = $this->request->getRequestParameter('bindex');
+
+            if ($sBasketItemId) {
+                $oBasket = $this->getBasket();
+                //take params
+                $aBasketContents = $oBasket->getContents();
+
+                /* @var \oxBasketItem $oItem */
+                $oItem = $aBasketContents[$sBasketItemId];
+
+                $sProductId = isset($oItem) ? $oItem->getProductId() : null;
+            } else {
+                $sProductId = $this->request->getRequestParameter('aid');
+            }
+        }
+
+        // fetching other needed info
+        $dAmount = isset($dAmount) ? $dAmount : $this->request->getRequestParameter('am');
+        $aSel = isset($aSel) ? $aSel : $this->request->getRequestParameter('sel');
+        $aPersParam = $aPersParam ? : $this->request->getRequestParameter('persparam');
+
+        // adding articles
+        if ($aProducts = $this->_getItems($sProductId, $dAmount, $aSel, $aPersParam, $blOverride)) {
+            $this->_setLastCallFnc('changebasket');
+            $bus = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_COMMAND_BUS);
+            $bus->handle(
+                new AddToBasketCommand($aProducts, $this->getBasket())
+            );
+
+        }
+
+    }
+
+
+
+    /**
+     * @return oxbasket
+     */
+    protected function getBasket()
+    {
+        return $this->session->getBasket();
+
+        /* #var \oxbasket $basket */
+        $basket = oxNew('oxbasket');
+        $basket->load($this->session->getId());
+        $basket->setId($this->session->getId());
+
+        return $basket;
+    }
+
+
+
+
+    /**
+     * Formats and returns redirect URL where shop must be redirected after
+     * storing something to basket
+     *
+     * @return string   $sClass.$sPosition  redirection URL
+     */
+    protected function _getRedirectUrl()
+    {
+
+        // active class
+        $sClass = $this->request->getRequestParameter('cl');
+        $sClass = $sClass ? $sClass . '?' : 'start?';
+        $sPosition = '';
+
+        // setting redirect parameters
+        foreach ($this->aRedirectParams as $sParamName) {
+            $sParamVal = $this->request->getRequestParameter($sParamName);
+            $sPosition .= $sParamVal ? $sParamName . '=' . $sParamVal . '&' : '';
+        }
+
+        // special treatment
+        // search param
+        $sParam = rawurlencode($this->request->getRequestParameter('searchparam', true));
+        $sPosition .= $sParam ? 'searchparam=' . $sParam . '&' : '';
+
+        // current page number
+        $iPageNr = (int) $this->request->getRequestParameter('pgNr');
+        $sPosition .= ($iPageNr > 0) ? 'pgNr=' . $iPageNr . '&' : '';
+
+        // reload and backbutton blocker
+        if ($this->config->getConfigParam('iNewBasketItemMessage') == 3) {
+
+            // saving return to shop link to session
+            $this->session->setVariable('_backtoshop', $sClass . $sPosition);
+
+            // redirecting to basket
+            $sClass = 'basket?';
+        }
+
+        return $sClass . $sPosition;
+    }
+
+
+
+    /**
+     * Collects and returns array of items to add to basket. Product info is taken not only from
+     * given parameters, but additionally from request 'aproducts' parameter
+     *
+     * @param string $sProductId product ID
+     * @param double $dAmount    product amount
+     * @param array  $aSel       product select lists
+     * @param array  $aPersParam product persistent parameters
+     * @param bool   $blOverride amount override status
+     *
+     * @return mixed
+     */
+    protected function _getItems(
+        $sProductId = null,
+        $dAmount = null,
+        $aSel = null,
+        $aPersParam = null,
+        $blOverride = false
+    ) {
+        // collecting items to add
+        $aProducts = $this->request->getRequestParameter('aproducts');
+
+        // collecting specified item
+        $sProductId = $sProductId ? : $this->request->getRequestParameter('aid');
+        if ($sProductId) {
+
+            // additionally fetching current product info
+            $dAmount = isset($dAmount) ? $dAmount : $this->request->getRequestParameter('am');
+
+            // select lists
+            $aSel = isset($aSel) ? $aSel : $this->request->getRequestParameter('sel');
+
+            // persistent parameters
+            if (empty($aPersParam)) {
+                $aPersParam = $this->getPersistedParameters();
+            }
+
+            $sBasketItemId = $this->request->getRequestParameter('bindex');
+
+            $aProducts[$sProductId] = array('am'           => $dAmount,
+                'sel'          => $aSel,
+                'persparam'    => $aPersParam,
+                'override'     => $blOverride,
+                'basketitemid' => $sBasketItemId
+            );
+        }
+
+        if (is_array($aProducts) && count($aProducts)) {
+
+            if ($this->request->getRequestParameter('removeBtn') !== null) {
+                //setting amount to 0 if removing article from basket
+                foreach ($aProducts as $sProductId => $aProduct) {
+                    if (isset($aProduct['remove']) && $aProduct['remove']) {
+                        $aProducts[$sProductId]['am'] = 0;
+                    } else {
+                        unset ($aProducts[$sProductId]);
+                    }
+                }
+            }
+
+            return $aProducts;
+        }
+
+        return false;
+    }
+
+
+
+    /**
+     * Setting last call data to session (data used by econda)
+     *
+     * @param string $sCallName    name of action ('tobasket', 'changebasket')
+     * @param array  $aProductInfo data which comes from request when you press button "to basket"
+     * @param array  $aBasketInfo  array returned by oxbasket::getBasketSummary()
+     */
+    protected function _setLastCall($sCallName, $aProductInfo, $aBasketInfo)
+    {
+        $this->session->setVariable('aLastcall', array($sCallName => $aProductInfo));
+    }
+
+    /**
+     * Setting last call function name (data used by econda)
+     *
+     * @param string $sCallName name of action ('tobasket', 'changebasket')
+     */
+    protected function _setLastCallFnc($sCallName)
+    {
+        $this->_sLastCallFnc = $sCallName;
+    }
+
+    /**
+     * Getting last call function name (data used by econda)
+     *
+     * @return string
+     */
+    protected function _getLastCallFnc()
+    {
+        return $this->_sLastCallFnc;
+    }
+
+
+
+    /**
+     * Cleans and returns persisted parameters.
+     *
+     * @param array $persistedParameters key-value parameters (optional). If not passed - takes parameters from request.
+     *
+     * @return array|null cleaned up parameters or null, if there are no non-empty parameters
+     */
+    protected function getPersistedParameters($persistedParameters = null)
+    {
+        $persistedParameters = ($persistedParameters ?: $this->request->getRequestParameter('persparam'));
+        if (!is_array($persistedParameters)) {
+            return null;
+        }
+        return array_filter($persistedParameters, 'trim') ?: null;
     }
 }

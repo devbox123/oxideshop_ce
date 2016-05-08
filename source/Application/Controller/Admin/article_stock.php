@@ -169,10 +169,8 @@ class Article_Stock extends oxAdminDetails
             $aParams['oxprice2article__oxamount'] = "1";
         }
 
-        if (!$myConfig->getConfigParam('blAllowUnevenAmounts')) {
-            $aParams['oxprice2article__oxamount'] = round(( string ) $aParams['oxprice2article__oxamount']);
-            $aParams['oxprice2article__oxamountto'] = round(( string ) $aParams['oxprice2article__oxamountto']);
-        }
+        $aParams['oxprice2article__oxamount'] = oxNew('oxAmount', $aParams['oxprice2article__oxamount']);
+        $aParams['oxprice2article__oxamountto'] = oxNew('oxAmount', $aParams['oxprice2article__oxamountto']);
 
         $dPrice = $aParams['price'];
         $sType = $aParams['pricetype'];

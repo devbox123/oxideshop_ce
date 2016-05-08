@@ -1,7 +1,7 @@
 [{capture append="oxidBlock_content"}]
      <h1 class="pageHead">[{$oView->getTitle()}]</h1>
     [{if $oView->getNoticeProductList()}]
-        [{include file="widget/product/list.tpl" type="line" listId="noticelistProductList" title="" products=$oView->getNoticeProductList() removeFunction="tonoticelist" owishid=$oxcmp_user->oxuser__oxid->value}]
+        [{include file="widget/product/list.tpl" type="line" listId="noticelistProductList" title="" products=$oView->getNoticeProductList() removeFunction="tonoticelist&amp;cl=account_noticelist" owishid=$oxcmp_user->oxuser__oxid->value}]
     [{else}]
         <div class="box info">
           [{oxmultilang ident="WISH_LIST_EMPTY"}]

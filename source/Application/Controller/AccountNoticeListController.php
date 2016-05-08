@@ -22,6 +22,8 @@
 
 namespace OxidEsales\Eshop\Application\Controller;
 
+use OxidEsales\Eshop\Application\Command\AddToNoticeListCommand;
+use OxidEsales\Eshop\Core\DiContainer;
 use oxRegistry;
 
 /**
@@ -178,5 +180,36 @@ class AccountNoticeListController extends \Account
         $aPaths[] = $aPath;
 
         return $aPaths;
+    }
+
+
+
+    /**
+     * If session user is set loads user noticelist (oxuser::GetBasket())
+     * and adds article to it.
+     *
+     * @param string $sProductId Product/article ID (default null)
+     * @param double $dAmount    amount of good (default null)
+     * @param array  $aSel       product selection list (default null)
+     *
+     * @return bool
+     */
+    public function toNoticeList()
+    {
+        if (!$this->session->checkSessionChallenge()) {
+            return;
+        }
+
+        if ($this->getUser()) {
+
+            $sProductId = $this->request->getRequestParameter('itmid');
+            $sProductId = $sProductId ? : $this->request->getRequestParameter('aid');
+            $dAmount = $this->request->getRequestParameter('am');
+            $aSel = $this->request->getRequestParameter('sel');
+
+            $dAmount = oxNew('oxAmount', $dAmount);
+            $bus = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_COMMAND_BUS);
+            $bus->handle(new AddToNoticeListCommand($sProductId, abs($dAmount), $aSel, ($dAmount == 0)));
+        }
     }
 }

@@ -3,7 +3,8 @@
 namespace OxidEsales\Eshop\Core;
 
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 class SymfonySession implements SessionInterface
 {
@@ -11,7 +12,9 @@ class SymfonySession implements SessionInterface
 
     public function __construct()
     {
-        $this->symfonySession = new Session(new PhpBridgeSessionStorage());
+        $storage = new NativeSessionStorage(array(), new NativeFileSessionHandler());
+
+        $this->symfonySession = new Session($storage);
         $this->symfonySession->start();
     }
 
@@ -25,9 +28,17 @@ class SymfonySession implements SessionInterface
         $this->symfonySession->set($name, $value);
     }
 
+    private $basket;
     public function getBasket()
     {
-        return oxNew('oxBasket');
+        if (null === $this->basket) {
+            /* #var \oxbasket $basket */
+            $this->basket = oxNew('oxbasket');
+            $this->basket->load($this->getId());
+            $this->basket->setId($this->getId());
+        }
+
+        return $this->basket;
     }
 
     public function hiddenSid()

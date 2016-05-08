@@ -354,4 +354,34 @@ class oxUserBasket extends oxBase
 
         return $blIsVisible;
     }
+
+    public function loadNoticeBasket()
+    {
+        $sName = 'noticelist';
+        $aWhere = array('oxuserbaskets.oxuserid' => $this->getId(), 'oxuserbaskets.oxtitle' => $sName);
+
+        // creating if it does not exist
+        if (!$this->assignRecord($this->buildSelectString($aWhere))) {
+            $this->oxuserbaskets__oxtitle = new oxField($sName);
+            $this->oxuserbaskets__oxuserid = new oxField($this->getId());
+
+            // marking basket as new (it will not be saved in DB yet)
+            $this->setIsNewBasket();
+        }
+    }
+
+    public function loadWishBasket()
+    {
+        $sName = 'wishlist';
+        $aWhere = array('oxuserbaskets.oxuserid' => $this->getId(), 'oxuserbaskets.oxtitle' => $sName);
+
+        // creating if it does not exist
+        if (!$this->assignRecord($this->buildSelectString($aWhere))) {
+            $this->oxuserbaskets__oxtitle = new oxField($sName);
+            $this->oxuserbaskets__oxuserid = new oxField($this->getId());
+
+            // marking basket as new (it will not be saved in DB yet)
+            $this->setIsNewBasket();
+        }
+    }
 }

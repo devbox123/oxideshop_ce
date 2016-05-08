@@ -283,19 +283,6 @@ class oxcmp_user extends oxView
             }
         } else {
             $this->login();
-
-            if (!$this->isAdmin() && !$this->config->getConfigParam('blPerfNoBasketSaving')) {
-                //load basket from the database
-                try {
-                    if ($oBasket = $this->session->getBasket()) {
-                        $oBasket->load();
-                    }
-                } catch (Exception $oE) {
-                    //just ignore it
-                }
-            }
-
-
         }
     }
 

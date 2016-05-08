@@ -19,6 +19,13 @@ class MailClientConfig
      * @var object
      */
     protected $_oShop;
+    private $config;
+
+
+    public function __construct($config)
+    {
+        $this->config = $config;
+    }
 
     public function getCharset()
     {

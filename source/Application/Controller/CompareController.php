@@ -469,4 +469,69 @@ class CompareController extends \oxUBase
 
         return $aPaths;
     }
+
+
+    /**
+     * Adds/removes chosen article to/from article comparison list
+     *
+     * @param object $sProductId product id
+     * @param double $dAmount    amount
+     * @param array  $aSel       (default null)
+     * @param bool   $blOverride allow override
+     * @param bool   $blBundle   bundled
+     *
+     * @return null
+     */
+    public function toCompareList(
+        $sProductId = null,
+        $dAmount = null,
+        $aSel = null,
+        $blOverride = false,
+        $blBundle = false
+    ) {
+        // only if enabled and not search engine..
+        if ($this->getViewConfig()->getShowCompareList() && !oxRegistry::getUtils()->isSearchEngine()) {
+
+
+            // #657 special treatment if we want to put on comparelist
+            $blAddCompare = $this->request->getRequestParameter('addcompare');
+            $blRemoveCompare = $this->request->getRequestParameter('removecompare');
+            $sProductId = $sProductId ? : $this->request->getRequestParameter('aid');
+            if (($blAddCompare || $blRemoveCompare) && $sProductId) {
+
+                // toggle state in session array
+                $aItems = $this->session->getVariable('aFiltcompproducts');
+                if ($blAddCompare && !isset($aItems[$sProductId])) {
+                    $aItems[$sProductId] = true;
+                }
+
+                if ($blRemoveCompare) {
+                    unset($aItems[$sProductId]);
+                }
+
+                $this->session->setVariable('aFiltcompproducts', $aItems);
+                $oParentView = $this->getParent();
+
+                // #843C there was problem then field "blIsOnComparisonList" was not set to article object
+                if (($oProduct = $this->getViewProduct())) {
+                    if (isset($aItems[$oProduct->getId()])) {
+                        $oProduct->setOnComparisonList(true);
+                    } else {
+                        $oProduct->setOnComparisonList(false);
+                    }
+                }
+
+                $aViewProds = $this->getViewProductList();
+                if (is_array($aViewProds) && count($aViewProds)) {
+                    foreach ($aViewProds as $oProduct) {
+                        if (isset($aItems[$oProduct->getId()])) {
+                            $oProduct->setOnComparisonList(true);
+                        } else {
+                            $oProduct->setOnComparisonList(false);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

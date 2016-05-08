@@ -1474,6 +1474,11 @@ class oxBasket extends oxBase
 
         //  12.setting to up-to-date status
         $this->afterUpdate();
+
+
+        if ($blForceUpdate) {
+            $this->save();
+        }
     }
 
     /**
@@ -1689,10 +1694,12 @@ class oxBasket extends oxBase
     {
         parent::load($oxid);
 
-        $basket = unserialize($this->oxbaskets__oxbasket->value);
-        if (is_array($basket)) {
-            foreach ($basket as $item) {
-                $this->addToBasket($item['productId'], $item['amount'], $item['selList'], $item['persParams'], true);
+        if ($this->oxbaskets__oxbasket) {
+            $basket = unserialize($this->oxbaskets__oxbasket->getRawValue());
+            if (is_array($basket)) {
+                foreach ($basket as $item) {
+                    $this->addToBasket($item['productId'], $item['amount'], $item['selList'], $item['persParams'], true);
+                }
             }
         }
 

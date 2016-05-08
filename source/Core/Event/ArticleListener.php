@@ -9,7 +9,7 @@ class ArticleListener
     {
         $id = $event->getArticleId();
 
-        $article = new \oxArticle();
+        $article = oxNew('oxArticle');
         $article->load($id);
 
         $reflection = new \ReflectionClass(ListArticleInterface::class);

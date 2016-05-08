@@ -12,7 +12,6 @@
     <li class="articleTitle">
         <a href="[{$_oBoxProduct->getMainLink()}]">
             [{$_sTitle}]<br>
-            [{oxhasrights ident="SHOWARTICLEPRICE"}]
                 [{block name="widget_product_boxproduct_price_value"}]
                     [{if $_oBoxProduct->getPrice()}]
                         <strong> [{if $_oBoxProduct->isRangePrice()}]
@@ -36,7 +35,6 @@
                         </strong>
                     [{/if}]
                 [{/block}]
-            [{/oxhasrights}]
         </a>
     </li>
 [{/block}]

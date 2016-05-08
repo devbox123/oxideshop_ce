@@ -22,6 +22,8 @@
 
 namespace OxidEsales\Eshop\Application\Controller;
 
+use OxidEsales\Eshop\Application\Command\AddToWishListCommand;
+use OxidEsales\Eshop\Core\DiContainer;
 use oxRegistry;
 use oxUBase;
 use oxList;
@@ -210,5 +212,35 @@ class WishListController extends oxUBase
         }
 
         return $sTitle;
+    }
+
+    /**
+     * If session user is set loads user wishlist (oxuser::GetBasket()) and
+     * adds article to it.
+     *
+     * @param string $sProductId Product/article ID (default null)
+     * @param double $dAmount    amount of good (default null)
+     * @param array  $aSel       product selection list (default null)
+     *
+     * @return false
+     */
+    public function toWishList()
+    {
+        if (!$this->session->checkSessionChallenge()) {
+            return;
+        }
+
+        // only if enabled
+        if ($this->getViewConfig()->getShowWishlist()&& $this->getUser()) {
+
+            $sProductId = $this->request->getRequestParameter('itmid');
+            $sProductId = ($sProductId) ? : $this->request->getRequestParameter('aid');
+            $dAmount = $this->request->getRequestParameter('am');
+            $aSel = $this->request->getRequestParameter('sel');
+
+            $dAmount = oxNew('oxAmount', $dAmount);
+            $bus = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_COMMAND_BUS);
+            $bus->handle(new AddToWishListCommand($sProductId, $dAmount, $aSel, ($dAmount == 0)));
+        }
     }
 }

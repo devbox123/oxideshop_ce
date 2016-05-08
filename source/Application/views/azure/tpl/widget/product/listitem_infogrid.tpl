@@ -27,8 +27,8 @@
             <input type="hidden" name="recommid" value="[{$recommid}]">
         [{/if}]
         [{if $blShowToBasket}]
-            [{oxhasrights ident="TOBASKET"}]
                 <input type="hidden" name="cl" value="[{$oViewConf->getTopActiveClassName()}]">
+                <input type="hidden" name="cl" value="basket">
                 [{if $owishid}]
                     <input type="hidden" name="owishid" value="[{$owishid}]">
                 [{/if}]
@@ -44,7 +44,6 @@
                     <input type="hidden" name="anid" value="[{$product->oxarticles__oxnid->value}]">
                 [{/if}]
                 <input type="hidden" name="am" value="1">
-            [{/oxhasrights}]
         [{else}]
             <input type="hidden" name="cl" value="details">
             <input type="hidden" name="anid" value="[{$product->oxarticles__oxnid->value}]">
@@ -94,7 +93,6 @@
                         [{oxid_include_dynamic file="widget/product/compare_links.tpl" testid="_`$iIndex`" type="compare" aid=$product->oxarticles__oxid->value anid=$altproduct in_list=$product->isOnComparisonList() page=$oView->getActPage()}]
                     [{/if}]
                     [{block name="widget_product_listitem_infogrid_price"}]
-                        [{oxhasrights ident="SHOWARTICLEPRICE"}]
                             [{if $product->getTPrice()}]
                                 <span class="oldPrice">
                                   [{oxmultilang ident="REDUCED_FROM_2"}] <del>[{oxprice price=$product->getTPrice() currency=$oView->getActCurrency()}]</del>
@@ -136,16 +134,13 @@
                                     <span class="value">[{$product->oxarticles__oxweight->value}] [{oxmultilang ident="KG"}]</span>
                                 </span>
                             [{/if}]
-                        [{/oxhasrights}]
                     [{/block}]
                 </div>
             </div>
             [{block name="widget_product_listitem_infogrid_tobasket"}]
                 <div class="buttonBox">
                     [{if $blShowToBasket}]
-                        [{oxhasrights ident="TOBASKET"}]
                             <button type="submit" class="submitButton largeButton">[{oxmultilang ident="TO_CART"}]</button>
-                        [{/oxhasrights}]
                     [{else}]
                         <a class="submitButton largeButton" href="[{$_productLink}]" >[{oxmultilang ident="MORE_INFO"}]</a>
                     [{/if}]

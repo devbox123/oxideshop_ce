@@ -36,31 +36,7 @@ class oxcmp_basket extends oxView
      */
     protected $_blIsComponent = true;
 
-    /**
-     * Last call function name
-     *
-     * @var string
-     */
-    protected $_sLastCallFnc = null;
 
-    /**
-     * Parameters which are kept when redirecting after user
-     * puts something to basket
-     *
-     * @var array
-     */
-    public $aRedirectParams = array('cnid', // category id
-                                    'mnid', // manufacturer id
-                                    'anid', // active article id
-                                    'tpl', // spec. template
-                                    'listtype', // list type
-                                    'searchcnid', // search category
-                                    'searchvendor', // search vendor
-                                    'searchmanufacturer', // search manufacturer
-                                    'searchtag', // search tag
-                                    'searchrecomm', // search recomendation
-                                    'recommid' // recomm. list id
-    );
 
     /**
      * Initiates component.
@@ -102,332 +78,23 @@ class oxcmp_basket extends oxView
      */
     public function render()
     {
-        // recalculating
-        if ($oBasket = $this->session->getBasket()) {
-            $oBasket->calculateBasket(false);
-        }
-
         parent::render();
-
-        return $oBasket;
+            return $this->getBasket();
     }
 
     /**
-     * Basket content update controller.
-     * Before adding article - check if client is not a search engine. If
-     * yes - exits method by returning false. If no - executes
-     * oxcmp_basket::_addItems() and puts article to basket.
-     * Returns position where to redirect user browser.
-     *
-     * @param string $sProductId Product ID (default null)
-     * @param double $dAmount    Product amount (default null)
-     * @param array  $aSel       (default null)
-     * @param array  $aPersParam (default null)
-     * @param bool   $blOverride If true amount in basket is replaced by $dAmount otherwise amount is increased by $dAmount (default false)
-     *
-     * @return mixed
+     * @return oxbasket
      */
-    public function toBasket($sProductId = null, $dAmount = null, $aSel = null, $aPersParam = null, $blOverride = false)
+    protected function getBasket()
     {
-        // adding to basket is not allowed ?
-        $myConfig = $this->config;
-        if (oxRegistry::getUtils()->isSearchEngine()) {
-            return;
-        }
-
-        // adding articles
-        if ($aProducts = $this->_getItems($sProductId, $dAmount, $aSel, $aPersParam, $blOverride)) {
-
-            $this->_setLastCallFnc('tobasket');
-            $oBasketItem = $this->_addItems($aProducts);
-
-            // new basket item marker
-            if ($oBasketItem && $myConfig->getConfigParam('iNewBasketItemMessage') != 0) {
-                $oNewItem = new stdClass();
-                $oNewItem->sTitle = $oBasketItem->getTitle();
-                $oNewItem->sId = $oBasketItem->getProductId();
-                $oNewItem->dAmount = $oBasketItem->getAmount();
-                $oNewItem->dBundledAmount = $oBasketItem->getdBundledAmount();
-
-                // passing article
-                $this->session->setVariable('_newitem', $oNewItem);
-            }
-
-            // redirect to basket
-            return $this->_getRedirectUrl();
-        }
-    }
-
-    /**
-     * Similar to tobasket, except that as product id "bindex" parameter is (can be) taken
-     *
-     * @param string $sProductId Product ID (default null)
-     * @param double $dAmount    Product amount (default null)
-     * @param array  $aSel       (default null)
-     * @param array  $aPersParam (default null)
-     * @param bool   $blOverride If true means increase amount of chosen article (default false)
-     *
-     * @return mixed
-     */
-    public function changebasket(
-        $sProductId = null,
-        $dAmount = null,
-        $aSel = null,
-        $aPersParam = null,
-        $blOverride = true
-    ) {
-        // adding to basket is not allowed ?
-        if (oxRegistry::getUtils()->isSearchEngine()) {
-            return;
-        }
-
-        // fetching item ID
-        if (!$sProductId) {
-            $sBasketItemId = $this->request->getRequestParameter('bindex');
-
-            if ($sBasketItemId) {
-                $oBasket = $this->session->getBasket();
-                //take params
-                $aBasketContents = $oBasket->getContents();
-                $oItem = $aBasketContents[$sBasketItemId];
-
-                $sProductId = isset($oItem) ? $oItem->getProductId() : null;
-            } else {
-                $sProductId = $this->request->getRequestParameter('aid');
-            }
-        }
-
-        // fetching other needed info
-        $dAmount = isset($dAmount) ? $dAmount : $this->request->getRequestParameter('am');
-        $aSel = isset($aSel) ? $aSel : $this->request->getRequestParameter('sel');
-        $aPersParam = $aPersParam ? $aPersParam : $this->request->getRequestParameter('persparam');
-
-        // adding articles
-        if ($aProducts = $this->_getItems($sProductId, $dAmount, $aSel, $aPersParam, $blOverride)) {
-
-            // information that last call was changebasket
-            $oBasket = $this->session->getBasket();
-            $oBasket->onUpdate();
-
-            $this->_setLastCallFnc('changebasket');
-            $oBasketItem = $this->_addItems($aProducts);
-        }
-
-    }
-
-    /**
-     * Formats and returns redirect URL where shop must be redirected after
-     * storing something to basket
-     *
-     * @return string   $sClass.$sPosition  redirection URL
-     */
-    protected function _getRedirectUrl()
-    {
-
-        // active class
-        $sClass = $this->request->getRequestParameter('cl');
-        $sClass = $sClass ? $sClass . '?' : 'start?';
-        $sPosition = '';
-
-        // setting redirect parameters
-        foreach ($this->aRedirectParams as $sParamName) {
-            $sParamVal = $this->request->getRequestParameter($sParamName);
-            $sPosition .= $sParamVal ? $sParamName . '=' . $sParamVal . '&' : '';
-        }
-
-        // special treatment
-        // search param
-        $sParam = rawurlencode($this->request->getRequestParameter('searchparam', true));
-        $sPosition .= $sParam ? 'searchparam=' . $sParam . '&' : '';
-
-        // current page number
-        $iPageNr = (int) $this->request->getRequestParameter('pgNr');
-        $sPosition .= ($iPageNr > 0) ? 'pgNr=' . $iPageNr . '&' : '';
-
-        // reload and backbutton blocker
-        if ($this->config->getConfigParam('iNewBasketItemMessage') == 3) {
-
-            // saving return to shop link to session
-            $this->session->setVariable('_backtoshop', $sClass . $sPosition);
-
-            // redirecting to basket
-            $sClass = 'basket?';
-        }
-
-        return $sClass . $sPosition;
-    }
-
-    /**
-     * Cleans and returns persisted parameters.
-     *
-     * @param array $persistedParameters key-value parameters (optional). If not passed - takes parameters from request.
-     *
-     * @return array|null cleaned up parameters or null, if there are no non-empty parameters
-     */
-    protected function getPersistedParameters($persistedParameters = null)
-    {
-        $persistedParameters = ($persistedParameters ?: $this->request->getRequestParameter('persparam'));
-        if (!is_array($persistedParameters)) {
-            return null;
-        }
-        return array_filter($persistedParameters, 'trim') ?: null;
-    }
-
-    /**
-     * Collects and returns array of items to add to basket. Product info is taken not only from
-     * given parameters, but additionally from request 'aproducts' parameter
-     *
-     * @param string $sProductId product ID
-     * @param double $dAmount    product amount
-     * @param array  $aSel       product select lists
-     * @param array  $aPersParam product persistent parameters
-     * @param bool   $blOverride amount override status
-     *
-     * @return mixed
-     */
-    protected function _getItems(
-        $sProductId = null,
-        $dAmount = null,
-        $aSel = null,
-        $aPersParam = null,
-        $blOverride = false
-    ) {
-        // collecting items to add
-        $aProducts = $this->request->getRequestParameter('aproducts');
-
-        // collecting specified item
-        $sProductId = $sProductId ? $sProductId : $this->request->getRequestParameter('aid');
-        if ($sProductId) {
-
-            // additionally fetching current product info
-            $dAmount = isset($dAmount) ? $dAmount : $this->request->getRequestParameter('am');
-
-            // select lists
-            $aSel = isset($aSel) ? $aSel : $this->request->getRequestParameter('sel');
-
-            // persistent parameters
-            if (empty($aPersParam)) {
-                $aPersParam = $this->getPersistedParameters();
-            }
-
-            $sBasketItemId = $this->request->getRequestParameter('bindex');
-
-            $aProducts[$sProductId] = array('am'           => $dAmount,
-                                            'sel'          => $aSel,
-                                            'persparam'    => $aPersParam,
-                                            'override'     => $blOverride,
-                                            'basketitemid' => $sBasketItemId
-            );
-        }
-
-        if (is_array($aProducts) && count($aProducts)) {
-
-            if ($this->request->getRequestParameter('removeBtn') !== null) {
-                //setting amount to 0 if removing article from basket
-                foreach ($aProducts as $sProductId => $aProduct) {
-                    if (isset($aProduct['remove']) && $aProduct['remove']) {
-                        $aProducts[$sProductId]['am'] = 0;
-                    } else {
-                        unset ($aProducts[$sProductId]);
-                    }
-                }
-            }
-
-            return $aProducts;
-        }
-
-        return false;
-    }
-
-    /**
-     * Adds all articles user wants to add to basket. Returns
-     * last added to basket item.
-     *
-     * @param array $products products to add array
-     *
-     * @return  object  $oBasketItem    last added basket item
-     */
-    protected function _addItems($products)
-    {
-        $activeView = $this->config->getActiveView();
-        $errorDestination = $activeView->getErrorDestination();
+        return $this->session->getBasket();
 
         /* #var \oxbasket $basket */
-        $basket = oxNew('oxbasket'); //$this->session->getBasket();
+        $basket = oxNew('oxbasket');
         $basket->load($this->session->getId());
+        $basket->setId($this->session->getId());
 
-        $basketInfo = $basket->getBasketSummary();
-
-        $basketItemAmounts = array();
-
-        foreach ($products as $addProductId => $productInfo) {
-
-            $data = $this->prepareProductInformation($addProductId, $productInfo);
-            $productAmount = $basketInfo->aArticles[$data['id']];
-            $products[$addProductId]['oldam'] = isset($productAmount) ? $productAmount : 0;
-
-            //If we already changed articles so they now exactly match existing ones,
-            //we need to make sure we get the amounts correct
-            if (isset($basketItemAmounts[$data['oldBasketItemId']])) {
-                $data['amount'] = $data['amount'] + $basketItemAmounts[$data['oldBasketItemId']];
-            }
-
-            $basketItem = $this->addItemToBasket($basket, $data, $errorDestination);
-
-            if (is_a($basketItem, 'oxBasketItem') && $basketItem->getBasketItemKey()) {
-                $basketItemAmounts[$basketItem->getBasketItemKey()] += $data['amount'];
-            }
-
-            if (!$basketItem) {
-                $info = $basket->getBasketSummary();
-                $productAmount = $info->aArticles[$data['id']];
-                $products[$addProductId]['am'] = isset($productAmount) ? $productAmount : 0;
-            }
-        }
-
-        //if basket empty remove possible gift card
-        if ($basket->getProductsCount() == 0) {
-            $basket->setCardId(null);
-        }
-
-        $basket->save();
-
-        // information that last call was tobasket
-        $this->_setLastCall($this->_getLastCallFnc(), $products, $basketInfo);
-
-        return $basketItem;
-    }
-
-    /**
-     * Setting last call data to session (data used by econda)
-     *
-     * @param string $sCallName    name of action ('tobasket', 'changebasket')
-     * @param array  $aProductInfo data which comes from request when you press button "to basket"
-     * @param array  $aBasketInfo  array returned by oxbasket::getBasketSummary()
-     */
-    protected function _setLastCall($sCallName, $aProductInfo, $aBasketInfo)
-    {
-        $this->session->setVariable('aLastcall', array($sCallName => $aProductInfo));
-    }
-
-    /**
-     * Setting last call function name (data used by econda)
-     *
-     * @param string $sCallName name of action ('tobasket', 'changebasket')
-     */
-    protected function _setLastCallFnc($sCallName)
-    {
-        $this->_sLastCallFnc = $sCallName;
-    }
-
-    /**
-     * Getting last call function name (data used by econda)
-     *
-     * @return string
-     */
-    protected function _getLastCallFnc()
-    {
-        return $this->_sLastCallFnc;
+        return $basket;
     }
 
     /**
@@ -438,7 +105,7 @@ class oxcmp_basket extends oxView
     public function isRootCatChanged()
     {
         // in Basket
-        $oBasket = $this->session->getBasket();
+        $oBasket = $this->getBasket();
         if ($oBasket->showCatChangeWarning()) {
             $oBasket->setCatChangeWarningState(false);
 
@@ -474,7 +141,7 @@ class oxcmp_basket extends oxView
             return "basket";
         } else {
             // clear basket
-            $this->session->getBasket()->deleteBasket();
+            $this->getBasket()->deleteBasket();
             $this->getParent()->setRootCatChanged(false);
         }
     }
@@ -487,70 +154,5 @@ class oxcmp_basket extends oxView
     protected function emptyBasket($oBasket)
     {
         $oBasket->deleteBasket();
-    }
-
-    /**
-     * Prepare information for adding product to basket.
-     *
-     * @param $productInfo
-     *
-     * @return array
-     */
-    protected function prepareProductInformation($addProductId, $productInfo)
-    {
-        $return = array();
-
-        $return['id'] = isset($productInfo['aid']) ? $productInfo['aid'] : $addProductId;
-        $return['amount'] = isset($productInfo['am']) ? $productInfo['am'] : 0;
-        $return['selectList'] = isset($productInfo['sel']) ? $productInfo['sel'] : null;
-
-        $return['persistentParameters'] = $this->getPersistedParameters($productInfo['persparam']);
-        $return['override'] = isset($productInfo['override']) ? $productInfo['override'] : null;
-        $return['bundle'] = isset($productInfo['bundle']) ? true : false;
-        $return['oldBasketItemId'] = isset($productInfo['basketitemid']) ? $productInfo['basketitemid'] : null;
-
-        return $return;
-    }
-
-    /**
-     * Add one item to basket. Handle eventual errors.
-     *
-     * @param $basket
-     * @param $data
-     * @param $errorDestination
-     *
-     * @return null
-     */
-    protected function addItemToBasket($basket, $itemData, $errorDestination)
-    {
-        $basketItem = null;
-
-        try {
-            $basketItem = $basket->addToBasket(
-                $itemData['id'],
-                $itemData['amount'],
-                $itemData['selectList'],
-                $itemData['persistentParameters'],
-                $itemData['override'],
-                $itemData['bundle'],
-                $itemData['oldBasketItemId']
-            );
-
-        } catch (oxOutOfStockException $exception) {
-            $exception->setDestination($errorDestination);
-            // #950 Change error destination to basket popup
-            if (!$errorDestination && $this->config->getConfigParam('iNewBasketItemMessage') == 2) {
-                $errorDestination = 'popup';
-            }
-            oxRegistry::get("oxUtilsView")->addErrorToDisplay($exception, false, (bool) $errorDestination, $errorDestination);
-        } catch (oxArticleInputException $exception) {
-            //add to display at specific position
-            $exception->setDestination($errorDestination);
-            oxRegistry::get("oxUtilsView")->addErrorToDisplay($exception, false, (bool) $errorDestination, $errorDestination);
-        } catch (oxNoArticleException $exception) {
-            //ignored, best solution F ?
-        }
-
-        return $basketItem;
     }
 }

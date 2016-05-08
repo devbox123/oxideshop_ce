@@ -28,12 +28,12 @@
         </div>
     </form>
 [{/if}]
-[{oxhasrights ident="TOBASKET"}]
     <form class="js-oxProductForm" action="[{$oViewConf->getSelfActionLink()}]" method="post">
         <div>
             [{$oViewConf->getHiddenSid()}]
             [{$oViewConf->getNavFormParams()}]
             <input type="hidden" name="cl" value="[{$oViewConf->getTopActiveClassName()}]">
+            <input type="hidden" name="cl" value="basket">
             <input type="hidden" name="aid" value="[{$oDetailsProduct->oxarticles__oxid->value}]">
             <input type="hidden" name="anid" value="[{$oDetailsProduct->oxarticles__oxnid->value}]">
             <input type="hidden" name="parentid" value="[{if !$oDetailsProduct->oxarticles__oxparentid->value}][{$oDetailsProduct->oxarticles__oxid->value}][{else}][{$oDetailsProduct->oxarticles__oxparentid->value}][{/if}]">
@@ -42,7 +42,6 @@
                 <input type="hidden" name="fnc" value="tobasket">
             [{/if}]
         </div>
-[{/oxhasrights}]
 
 <div class="detailsInfo clear">
     [{* article picture with zoom *}]
@@ -105,7 +104,7 @@
                             </li>
                         [{/if}]
                         [{if $oxcmp_user}]
-                            <li><span><a id="linkToNoticeList" href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl="|cat:$oViewConf->getTopActiveClassName() params="aid=`$oDetailsProduct->oxarticles__oxnid->value`&amp;anid=`$oDetailsProduct->oxarticles__oxnid->value`&amp;fnc=tonoticelist&amp;am=1"|cat:$oViewConf->getNavUrlParams()|cat:"&amp;stoken="|cat:$oViewConf->getSessionChallengeToken()}]" rel="nofollow">[{oxmultilang ident="ADD_TO_WISH_LIST"}]</a></span></li>
+                            <li><span><a id="linkToNoticeList" href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl="|cat:$oViewConf->getTopActiveClassName() params="aid=`$oDetailsProduct->oxarticles__oxnid->value`&amp;anid=`$oDetailsProduct->oxarticles__oxnid->value`&amp;cl=account_noticelist&amp;fnc=tonoticelist&amp;am=1"|cat:$oViewConf->getNavUrlParams()|cat:"&amp;stoken="|cat:$oViewConf->getSessionChallengeToken()}]" rel="nofollow">[{oxmultilang ident="ADD_TO_WISH_LIST"}]</a></span></li>
                         [{else}]
                             <li><span><a id="loginToNotice" href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=account" params="anid=`$oDetailsProduct->oxarticles__oxnid->value`"|cat:"&amp;sourcecl="|cat:$oViewConf->getTopActiveClassName()|cat:$oViewConf->getNavUrlParams()}]" rel="nofollow">[{oxmultilang ident="LOGIN_TO_ACCESS_WISH_LIST"}]</a></span></li>
                         [{/if}]
@@ -117,11 +116,9 @@
                             [{/if}]
                         [{/if}]
 
-                        [{oxhasrights ident="TOBASKET"}]
                             [{if $oView->isPriceAlarm() && $oDetailsProduct->isBuyable()}]
                                 <li><a id="priceAlarmLink" rel="nofollow" href="[{$oDetailsProduct->getLink()|cat:'#itemTabs'}]">[{oxmultilang ident="PRICE_ALERT"}]</a></li>
                             [{/if}]
-                        [{/oxhasrights}]
                         <li>
                            <span>[{mailto extra='id="questionMail"' address=$oDetailsProduct->oxarticles__oxquestionemail->value|default:$oxcmp_shop->oxshops__oxinfoemail->value subject='QUESTIONS_ABOUT_THIS_PRODUCT'|oxmultilangassign|cat:" "|cat:$oDetailsProduct->oxarticles__oxartnum->value text='QUESTIONS_ABOUT_THIS_PRODUCT_2'|oxmultilangassign}]</span>
                         </li>
@@ -155,11 +152,9 @@
 
         [{* short description *}]
         [{block name="details_productmain_shortdesc"}]
-            [{oxhasrights ident="SHOWSHORTDESCRIPTION"}]
                 [{if $oDetailsProduct->oxarticles__oxshortdesc->value}]
                     <div class="shortDescription description" id="productShortdesc">[{$oDetailsProduct->oxarticles__oxshortdesc->value}]</div>
                 [{/if}]
-            [{/oxhasrights}]
         [{/block}]
 
         [{assign var="blCanBuy" value=true}]
@@ -236,20 +231,17 @@
             [{/block}]
 
             [{block name="details_productmain_tprice"}]
-                [{oxhasrights ident="SHOWARTICLEPRICE"}]
                     [{if $oDetailsProduct->getTPrice()}]
                         <p class="oldPrice">
                             <strong>[{oxmultilang ident="REDUCED_FROM_2"}] <del>[{oxprice price=$oDetailsProduct->getTPrice() currency=$currency}]</del></strong>
                         </p>
                     [{/if}]
-                [{/oxhasrights}]
             [{/block}]
 
             [{block name="details_productmain_watchlist"}][{/block}]
 
             <div class="tobasketFunction clear">
                 [{block name="details_productmain_price"}]
-                    [{oxhasrights ident="SHOWARTICLEPRICE"}]
                         [{block name="details_productmain_price_value"}]
                             [{if $oDetailsProduct->getPrice()}]
                                 <label id="productPrice" class="price">
@@ -274,16 +266,13 @@
                                 [{include file="page/details/inc/priceinfo.tpl"}]
                             [{/if}]
                         [{/block}]
-                    [{/oxhasrights}]
                 [{/block}]
 
                 [{block name="details_productmain_tobasket"}]
-                    [{oxhasrights ident="TOBASKET"}]
                         [{if !$oDetailsProduct->isNotBuyable()}]
                             <input id="amountToBasket" type="text" name="am" value="1" size="3" autocomplete="off" class="textbox">
                             <button id="toBasket" type="submit" [{if !$blCanBuy}]disabled="disabled"[{/if}] class="submitButton largeButton">[{oxmultilang ident="TO_CART"}]</button>
                         [{/if}]
-                    [{/oxhasrights}]
                 [{/block}]
             </div>
 
@@ -323,11 +312,9 @@
                 [{/block}]
 
                 [{block name="details_productmain_deliverytime"}]
-                    [{oxhasrights ident="TOBASKET"}]
                         [{if $oDetailsProduct->isBuyable()}]
                             [{include file="page/details/inc/deliverytime.tpl"}]
                         [{/if}]
-                    [{/oxhasrights}]
                 [{/block}]
 
                 [{block name="details_productmain_weight"}]
@@ -367,10 +354,8 @@
     </div>
 </div>
 
-[{oxhasrights ident="TOBASKET"}]
     </form>
 
-[{/oxhasrights}]
 [{block name="details_productmain_morepics"}]
     [{include file="page/details/inc/morepics.tpl"}]
 [{/block}]

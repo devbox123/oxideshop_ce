@@ -42,7 +42,7 @@ class MailerListener
     }
 
     public function onUserCreated(UserCreated $event)
-    {
+    {return;
         $user = $event->getUser();
         $event->sendConfirmationEmail() ?
             $this->email->sendRegisterConfirmEmail($user) :

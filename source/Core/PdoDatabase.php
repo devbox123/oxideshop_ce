@@ -41,6 +41,9 @@ class PdoDatabase implements DatabaseInterface
     {
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
+
+        $s = vsprintf(str_replace('?', '"%s"', $sql), $params);
+
         return $statement->rowCount();
     }
 

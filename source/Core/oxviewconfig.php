@@ -99,6 +99,11 @@ class oxViewConfig extends oxSuperCfg implements ViewInterface
         $this->session = $session;
     }
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     /**
      * Returns shops home link
      *

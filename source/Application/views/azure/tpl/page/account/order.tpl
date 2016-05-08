@@ -74,14 +74,6 @@
                                       [{/block}]
                                   </td>
                                   <td class="small">
-                                    [{* Commented due to Trusted Shops precertification. Enable if needed *}]
-                                    [{*
-                                    [{oxhasrights ident="TOBASKET"}]
-                                    [{if $oArticle->oxarticles__oxid->value && $oArticle->isBuyable()}]
-                                        <a id="accOrderToBasket_[{$order->oxorder__oxordernr->value}]_[{$smarty.foreach.testOrderItem.iteration}]" href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=account_order" params="fnc=tobasket&amp;aid=`$oArticle->oxarticles__oxid->value`&amp;am=1"}]" rel="nofollow">[{oxmultilang ident="TO_CART"}]</a>
-                                    [{/if}]
-                                    [{/oxhasrights}]
-                                    *}]
                                   </td>
                                 </tr>
                                 [{include file="page/account/inc/order_article_status.tpl"}]

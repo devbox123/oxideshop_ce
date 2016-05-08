@@ -51,7 +51,7 @@ class oxwActions extends oxWidget
     {
         $actionId = $this->getViewParameter('action');
         if ($actionId && $this->_getLoadActionsParam()) {
-            return (new Action())->getById($actionId);
+            return oxNew(Action::class)->getById($actionId);
         }
     }
 

@@ -21,6 +21,7 @@ class DiContainer implements ContainerInterface
     const CONTAINER_CORE_DATABASE = 'core.database';
     const CONTAINER_CORE_MAILER = 'core.mailer';
     const CONTAINER_CORE_EVENT_DISPATCHER = 'core.eventdispatcher';
+    const CONTAINER_CORE_COMMAND_BUS = 'core.commandbus';
 
     /**
      * @var DiContainer
@@ -52,17 +53,9 @@ class DiContainer implements ContainerInterface
     {
         $this->container = $container;
 
-        //basic setup
-        $container
-            ->register(static::CONTAINER_CORE_MAILCLIENT, MailClient::class);
-
         // hack!
         $container
             ->register('symfony.eventdispatcher', SymfonyEventDispatcher::class);
-
-        $container
-            ->register(static::CONTAINER_CORE_MAILER, \oxEmail::class)
-            ->addArgument(new Reference(static::CONTAINER_CORE_MAILCLIENT));
 
         $container
             ->register(static::CONTAINER_CORE_EVENT_DISPATCHER, EventDispatcher::class)
@@ -88,6 +81,20 @@ class DiContainer implements ContainerInterface
             //->register(static::CONTAINER_CORE_SESSION, \oxSession::class)
             ->register(static::CONTAINER_CORE_DATABASE, PdoDatabase::class)
             ->addArgument(new Reference(static::CONTAINER_CORE_CONFIG));
+
+
+        //basic setup
+        $container
+            ->register(static::CONTAINER_CORE_MAILCLIENT, MailClient::class)
+            ->addArgument(new Reference(static::CONTAINER_CORE_CONFIG));
+
+        $container
+            ->register(static::CONTAINER_CORE_MAILER, \oxEmail::class)
+            ->addArgument(new Reference(static::CONTAINER_CORE_CONFIG))
+            ->addArgument(new Reference(static::CONTAINER_CORE_MAILCLIENT));
+
+        $container
+            ->register(static::CONTAINER_CORE_COMMAND_BUS, CommandBus::class);
     }
 
     /**

@@ -12,7 +12,6 @@
     [{block name="widget_product_bargainitem_price"}]
         <div class="price [{if $_product->getUnitPrice()}]tight[{/if}]" id="priceBargain_[{$iIteration}]">
             <div>
-                [{oxhasrights ident="SHOWARTICLEPRICE"}]
                     [{if $_product->getTPrice()}]
                         <span class="priceOld">
                             [{oxmultilang ident="REDUCED_FROM_2"}] <del>[{oxprice price=$_product->getTPrice() currency=$oView->getActCurrency()}]</del>
@@ -41,13 +40,12 @@
                         [{/if}]
                         [{block name="widget_product_bargainitem_tobasket"}]
                             [{if !( $_product->getVariantsCount() || $_product->hasMdVariants() || ($oViewConf->showSelectListsInList() && $_product->getSelections(1)) )}]
-                                <a href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=start" params="fnc=tobasket&amp;aid=`$_product->oxarticles__oxid->value`&amp;am=1"}]" class="toCart button" title="[{oxmultilang ident="TO_CART"}]">[{oxmultilang ident="TO_CART"}]</a>
+                                <a href="[{oxgetseourl ident=$oViewConf->getSelfLink()|cat:"cl=start&amp;cl=basket" params="fnc=tobasket&amp;aid=`$_product->oxarticles__oxid->value`&amp;am=1"}]" class="toCart button" title="[{oxmultilang ident="TO_CART"}]">[{oxmultilang ident="TO_CART"}]</a>
                             [{else}]
                                 <a href="[{$_product->getMainLink()}]" class="toCart button">[{oxmultilang ident="MORE_INFO"}]</a>
                             [{/if}]
                         [{/block}]
                     [{/block}]
-                [{/oxhasrights}]
             </div>
         </div>
     [{/block}]

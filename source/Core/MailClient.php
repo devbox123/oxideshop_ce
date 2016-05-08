@@ -6,9 +6,9 @@ namespace OxidEsales\Eshop\Core;
  */
 class MailClient implements MailClientInterface
 {
-    public function __construct()
+    public function __construct($config)
     {
-        $config = new MailClientConfig();
+        $config = new MailClientConfig($config);
 
         $this->mailer = new \PHPMailer(true);
 

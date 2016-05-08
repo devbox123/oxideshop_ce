@@ -2,7 +2,6 @@
 [{oxscript add="$('div.tabbedWidgetBox').tabs();"}]
 
 [{block name="details_tabs_longdescription"}]
-    [{oxhasrights ident="SHOWLONGDESCRIPTION"}]
         [{assign var="oLongdesc" value=$oDetailsProduct->getLongDescription()}]
         [{if $oLongdesc->value}]
             [{capture append="tabs"}]<a href="#description">[{oxmultilang ident="DESCRIPTION"}]</a>[{/capture}]
@@ -21,7 +20,6 @@
             </div>
             [{/capture}]
         [{/if}]
-    [{/oxhasrights}]
 [{/block}]
 
 [{block name="details_tabs_attributes"}]

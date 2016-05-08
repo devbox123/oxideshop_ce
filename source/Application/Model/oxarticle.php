@@ -22,6 +22,7 @@
 
 use OxidEsales\Eshop\Application\Model\Article\ListArticleInterface;
 use OxidEsales\Eshop\Application\Model\Contract\ArticleInterface;
+use OxidEsales\Eshop\Core\DatabaseInterface;
 use OxidEsales\Eshop\Core\DiContainer;
 use OxidEsales\Eshop\Core\Event\ArticleSaved;
 
@@ -462,6 +463,19 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      * @var bool
      */
     protected $_blCanUpdateAnyField = null;
+
+    /**
+     * @var
+     */
+    private $picturesManager;
+
+    public function __construct(\oxConfig $config, DatabaseInterface $database)
+    {
+        parent::__construct($config, $database);
+
+        $this->picturesManager = new PicturesManager($config);
+        $this->lingManager = new LinkManager();
+    }
 
     /**
      * Magic getter, deals with values which are loaded on demand.
@@ -2217,74 +2231,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     public function getPictureGallery()
     {
-        $myConfig = $this->config;
-
-        //initialize
-        $blMorePic = false;
-        $aArtPics = array();
-        $aArtIcons = array();
-        $iActPicId = 1;
-        $sActPic = $this->getPictureUrl($iActPicId);
-
-        $oStr = getStr();
-        $iCntr = 0;
-        $iPicCount = $myConfig->getConfigParam('iPicCount');
-        $blCheckActivePicId = true;
-
-        for ($i = 1; $i <= $iPicCount; $i++) {
-            $sPicVal = $this->getPictureUrl($i);
-            $sIcoVal = $this->getIconUrl($i);
-            if (!$oStr->strstr($sIcoVal, 'nopic_ico.jpg') && !$oStr->strstr($sIcoVal, 'nopic.jpg') &&
-                !$oStr->strstr($sPicVal, 'nopic_ico.jpg') && !$oStr->strstr($sPicVal, 'nopic.jpg')
-            ) {
-                if ($iCntr) {
-                    $blMorePic = true;
-                }
-                $aArtIcons[$i] = $sIcoVal;
-                $aArtPics[$i] = $sPicVal;
-                $iCntr++;
-
-                if ($iActPicId == $i) {
-                    $sActPic = $sPicVal;
-                    $blCheckActivePicId = false;
-                }
-            } elseif ($blCheckActivePicId && $iActPicId <= $i) {
-                // if picture is empty, setting active pic id to next
-                // picture
-                $iActPicId++;
-            }
-        }
-
-        $blZoomPic = false;
-        $aZoomPics = array();
-        $iZoomPicCount = $myConfig->getConfigParam('iPicCount');
-
-        for ($j = 1, $c = 1; $j <= $iZoomPicCount; $j++) {
-            $sVal = $this->getZoomPictureUrl($j);
-
-            if ($sVal && !$oStr->strstr($sVal, 'nopic.jpg')) {
-                $blZoomPic = true;
-                $aZoomPics[$c]['id'] = $c;
-                $aZoomPics[$c]['file'] = $sVal;
-                //anything is better than empty name, because <img src=""> calls shop once more = x2 SLOW.
-                if (!$sVal) {
-                    $aZoomPics[$c]['file'] = "nopic.jpg";
-                }
-                $c++;
-            }
-        }
-
-        $aPicGallery = array(
-            'ActPicID' => $iActPicId,
-            'ActPic'   => $sActPic,
-            'MorePics' => $blMorePic,
-            'Pics'     => $aArtPics,
-            'Icons'    => $aArtIcons,
-            'ZoomPic'  => $blZoomPic,
-            'ZoomPics' => $aZoomPics
-        );
-
-        return $aPicGallery;
+        return $this->picturesManager->getPictureGallery($this);
     }
 
     /**
@@ -2908,17 +2855,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     public function getPictureUrl($iIndex = 1)
     {
-        if ($iIndex) {
-            $sImgName = false;
-            if (!$this->_isFieldEmpty("oxarticles__oxpic" . $iIndex)) {
-                $sImgName = basename($this->{"oxarticles__oxpic$iIndex"}->value);
-            }
-
-            $sSize = $this->config->getConfigParam('aDetailImageSizes');
-
-            return oxRegistry::get("oxPictureHandler")
-                ->getProductPicUrl("product/{$iIndex}/", $sImgName, $sSize, 'oxpic' . $iIndex);
-        }
+        return $this->picturesManager->getPictureUrl($iIndex, $this);
     }
 
     /**
@@ -2931,23 +2868,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     public function getIconUrl($iIndex = 0)
     {
-        $sImgName = false;
-        $sDirname = "product/1/";
-        if ($iIndex && !$this->_isFieldEmpty("oxarticles__oxpic{$iIndex}")) {
-            $sImgName = basename($this->{"oxarticles__oxpic$iIndex"}->value);
-            $sDirname = "product/{$iIndex}/";
-        } elseif (!$this->_isFieldEmpty("oxarticles__oxicon")) {
-            $sImgName = basename($this->oxarticles__oxicon->value);
-            $sDirname = "product/icon/";
-        } elseif (!$this->_isFieldEmpty("oxarticles__oxpic1")) {
-            $sImgName = basename($this->oxarticles__oxpic1->value);
-        }
-
-        $sSize = $this->config->getConfigParam('sIconsize');
-
-        $sIconUrl = oxRegistry::get("oxPictureHandler")->getProductPicUrl($sDirname, $sImgName, $sSize, $iIndex);
-
-        return $sIconUrl;
+        return $this->picturesManager->getIconUrl($iIndex, $this);
     }
 
     /**
@@ -2959,18 +2880,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     public function getThumbnailUrl($bSsl = null)
     {
-        $sImgName = false;
-        $sDirname = "product/1/";
-        if (!$this->_isFieldEmpty("oxarticles__oxthumb")) {
-            $sImgName = basename($this->oxarticles__oxthumb->value);
-            $sDirname = "product/thumb/";
-        } elseif (!$this->_isFieldEmpty("oxarticles__oxpic1")) {
-            $sImgName = basename($this->oxarticles__oxpic1->value);
-        }
-
-        $sSize = $this->config->getConfigParam('sThumbnailsize');
-
-        return oxRegistry::get("oxPictureHandler")->getProductPicUrl($sDirname, $sImgName, $sSize, 0, $bSsl);
+        return $this->picturesManager->getThumbnailUrl($bSsl, $this);
     }
 
     /**
@@ -2982,14 +2892,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     public function getZoomPictureUrl($iIndex = '')
     {
-        $iIndex = (int) $iIndex;
-        if ($iIndex > 0 && !$this->_isFieldEmpty("oxarticles__oxpic" . $iIndex)) {
-            $sImgName = basename($this->{"oxarticles__oxpic" . $iIndex}->value);
-            $sSize = $this->config->getConfigParam("sZoomImageSize");
-
-            return oxRegistry::get("oxPictureHandler")->getProductPicUrl("product/{$iIndex}/", $sImgName, $sSize,
-                'oxpic' . $iIndex);
-        }
+        return $this->picturesManager->getZoomPictureUrl($iIndex, $this);
     }
 
     /**
@@ -3216,17 +3119,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     public function getMasterZoomPictureUrl($iIndex)
     {
-        $sPicUrl = false;
-        $sPicName = basename($this->{"oxarticles__oxpic" . $iIndex}->value);
-
-        if ($sPicName && $sPicName != "nopic.jpg") {
-            $sPicUrl = $this->config->getPictureUrl("master/product/" . $iIndex . "/" . $sPicName);
-            if (!$sPicUrl || basename($sPicUrl) == "nopic.jpg") {
-                $sPicUrl = false;
-            }
-        }
-
-        return $sPicUrl;
+        return $this->picturesManager->getMasterZoomPictureUrl($iIndex, $this);
     }
 
     /**
@@ -4078,6 +3971,11 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
         return $this->_oAmountPriceList;
     }
 
+    public function isFieldEmpty($sFieldName)
+    {
+        return $this->_isFieldEmpty($sFieldName);
+    }
+
     /**
      * Detects if field is empty.
      *
@@ -4438,7 +4336,6 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     protected function _deletePics()
     {
-        $myUtilsPic = oxRegistry::get("oxUtilsPic");
         $myConfig = $this->config;
         $oPictureHandler = oxRegistry::get("oxPictureHandler");
 

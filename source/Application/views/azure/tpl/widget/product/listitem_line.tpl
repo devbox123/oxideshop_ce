@@ -31,8 +31,8 @@
         <input type="hidden" name="recommid" value="[{$recommid}]">
     [{/if}]
     [{if $blShowToBasket}]
-        [{oxhasrights ident="TOBASKET"}]
             <input type="hidden" name="cl" value="[{$oViewConf->getTopActiveClassName()}]">
+            <input type="hidden" name="cl" value="basket">
             [{if $owishid}]
                 <input type="hidden" name="owishid" value="[{$owishid}]">
             [{/if}]
@@ -48,7 +48,6 @@
                 <input type="hidden" name="anid" value="[{$product->oxarticles__oxnid->value}]">
             [{/if}]
             <input id="am_[{$iIndex}]" type="hidden" name="am" value="1">
-        [{/oxhasrights}]
     [{else}]
         <input type="hidden" name="cl" value="details">
         <input type="hidden" name="anid" value="[{$product->oxarticles__oxnid->value}]">
@@ -93,9 +92,7 @@
                 [{if $recommid}]
                     <div>[{$product->text|truncate:160:"..."}]</div>
                 [{else}]
-                    [{oxhasrights ident="SHOWSHORTDESCRIPTION"}]
                         [{$product->oxarticles__oxshortdesc->value|truncate:160:"..."}]
-                    [{/oxhasrights}]
                 [{/if}]
             </div>
         [{/block}]
@@ -105,7 +102,6 @@
                 [{oxid_include_dynamic file="widget/product/compare_links.tpl" testid="_`$iIndex`" type="compare" aid=$product->oxarticles__oxid->value anid=$altproduct in_list=$product->isOnComparisonList() page=$oView->getActPage()}]
             [{/if}]
             [{block name="widget_product_listitem_line_price"}]
-                [{oxhasrights ident="SHOWARTICLEPRICE"}]
                     [{if $product->getTPrice()}]
                         <span class="oldPrice">
                             [{oxmultilang ident="REDUCED_FROM_2"}] <del>[{oxprice price=$product->getTPrice() currency=$oView->getActCurrency()}]</del>
@@ -152,15 +148,12 @@
                             <span class="value">[{$product->oxarticles__oxweight->value}] [{oxmultilang ident="KG"}]</span>
                         </span>
                     [{/if}]
-                [{/oxhasrights}]
             [{/block}]
             [{block name="widget_product_listitem_line_tobasket"}]
                 <div class="tobasketFunction clear">
                     [{if $blShowToBasket}]
-                        [{oxhasrights ident="TOBASKET"}]
                             <input id="amountToBasket_[{$iIndex}]" type="text" name="am" value="1" size="3" autocomplete="off" class="textbox">
                             <button id="toBasket_[{$iIndex}]" type="submit" class="submitButton largeButton">[{oxmultilang ident="TO_CART"}]</button>
-                        [{/oxhasrights}]
                     [{else}]
                         <a class="submitButton largeButton" href="[{$_productLink}]" >[{oxmultilang ident="MORE_INFO"}]</a>
                     [{/if}]
