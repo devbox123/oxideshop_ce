@@ -1514,7 +1514,7 @@ class oxConfig implements oxconfiginterface
 
         if (!$finalTemplatePath) {
             $templatePathCalculator = $this->getModuleTemplatePathCalculator();
-            $templatePathCalculator->setModulesPath($this->getConfig()->getModulesDir());
+            $templatePathCalculator->setModulesPath($this->getModulesDir());
             try {
                 $finalTemplatePath = $templatePathCalculator->calculateModuleTemplatePath($templateName);
             } catch(Exception $e) {

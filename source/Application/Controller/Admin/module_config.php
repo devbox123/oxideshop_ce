@@ -19,6 +19,8 @@
  * @copyright (C) OXID eSales AG 2003-2016
  * @version   OXID eShop CE
  */
+use OxidEsales\Eshop\Core\RequestInterface;
+use OxidEsales\Eshop\Core\SessionInterface;
 
 /**
  * Admin article main deliveryset manager.
@@ -34,9 +36,9 @@ class Module_Config extends Shop_Config
     /**
      * Add additional config type for modules.
      */
-    public function __construct($config)
+    public function __construct(\oxConfig $config, RequestInterface $request, SessionInterface $session)
     {
-        parent::__construct($config);
+        parent::__construct($config, $request, $session);
         $this->_aConfParams['password'] = 'confpassword';
     }
 
