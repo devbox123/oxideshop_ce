@@ -72,9 +72,9 @@ class oxUtilsServer extends oxSuperCfg
             // do NOT set cookies in php unit.
             return;
         }
-        $config = $this->getConfig();
-        //if shop runs in https only mode we can set secure flag to all cookies 
-        $blSecure = $blSecure || ($config->isSsl() && $config->getSslShopUrl() == $config->getShopUrl());
+
+        //if shop runs in https only mode we can set secure flag to all cookies
+        $blSecure = $blSecure || ($this->config->isSsl() && $this->config->getSslShopUrl() == $this->config->getShopUrl());
         return setcookie(
             $sName,
             $sValue,
