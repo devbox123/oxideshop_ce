@@ -207,7 +207,7 @@ class AccountNoticeListController extends \Account
             $dAmount = $this->request->getRequestParameter('am');
             $aSel = $this->request->getRequestParameter('sel');
 
-            $dAmount = oxNew('oxAmount', $dAmount);
+            $dAmount = oxNew('Amount', $dAmount);
             $bus = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_COMMAND_BUS);
             $bus->handle(new AddToNoticeListCommand($sProductId, abs($dAmount), $aSel, ($dAmount == 0)));
         }

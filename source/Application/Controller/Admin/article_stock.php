@@ -169,8 +169,8 @@ class Article_Stock extends oxAdminDetails
             $aParams['oxprice2article__oxamount'] = "1";
         }
 
-        $aParams['oxprice2article__oxamount'] = oxNew('oxAmount', $aParams['oxprice2article__oxamount']);
-        $aParams['oxprice2article__oxamountto'] = oxNew('oxAmount', $aParams['oxprice2article__oxamountto']);
+        $aParams['oxprice2article__oxamount'] = oxNew('Amount', $aParams['oxprice2article__oxamount']);
+        $aParams['oxprice2article__oxamountto'] = oxNew('Amount', $aParams['oxprice2article__oxamountto']);
 
         $dPrice = $aParams['price'];
         $sType = $aParams['pricetype'];

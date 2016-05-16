@@ -238,7 +238,7 @@ class WishListController extends oxUBase
             $dAmount = $this->request->getRequestParameter('am');
             $aSel = $this->request->getRequestParameter('sel');
 
-            $dAmount = oxNew('oxAmount', $dAmount);
+            $dAmount = oxNew('Amount', $dAmount);
             $bus = DiContainer::getInstance()->get(DiContainer::CONTAINER_CORE_COMMAND_BUS);
             $bus->handle(new AddToWishListCommand($sProductId, $dAmount, $aSel, ($dAmount == 0)));
         }

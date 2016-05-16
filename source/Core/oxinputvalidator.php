@@ -108,7 +108,7 @@ class oxInputValidator extends oxSuperCfg
             throw $oEx;
         }
 
-        return oxNew('oxAmount', $dAmount);
+        return oxNew('Amount', $dAmount);
     }
 
     /**

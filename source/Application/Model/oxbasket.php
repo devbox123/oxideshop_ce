@@ -1675,7 +1675,7 @@ class oxBasket extends oxBase
             if (!$oBasketItem->isBundle() && !$oBasketItem->isDiscountArticle()) {
                 $contents[] = [
                     'productId' => $oBasketItem->getProductId(),
-                    'amount' => $oBasketItem->getAmount(),
+                    'amount' => (string) $oBasketItem->getAmount(),
                     'selList' => $oBasketItem->getSelList(),
                     'persParams' => $oBasketItem->getPersParams()
                 ];
