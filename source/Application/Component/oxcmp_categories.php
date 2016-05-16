@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with OXID eShop Community Edition.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @link      http://www.oxid-esales.com
+ * @link          http://www.oxid-esales.com
  * @copyright (C) OXID eSales AG 2003-2016
- * @version   OXID eShop CE
+ * @version       OXID eShop CE
  */
 
 /**
@@ -135,6 +135,7 @@ class oxcmp_categories extends oxView
             $sActCat = $this->_addAdditionalParams($oProduct, $sActCat, $sActManufacturer, $sActTag, $sActVendor);
         }
 
+        // @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
         // Checking for the default category
         if ($sActCat === null && !$oProduct && !$sActManufacturer && !$sActTag) {
             // set remote cat
@@ -144,7 +145,8 @@ class oxcmp_categories extends oxView
                 $sActCat = null;
             }
         }
-
+        // END deprecated
+        
         return $sActCat;
     }
 
@@ -228,6 +230,8 @@ class oxcmp_categories extends oxView
      * @param string    $sActTag          active tag
      * @param string    $sActVendor       active vendor
      *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module. So the parameter sActTag will be removed.
+     *             
      * @return string $sActCat
      */
     protected function _addAdditionalParams($oProduct, $sActCat, $sActManufacturer, $sActTag, $sActVendor)
@@ -253,9 +257,11 @@ class oxcmp_categories extends oxView
                 // such vendor is available ?
                 $sListType = 'vendor';
                 $sActCat = $sActVendor;
+                // @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
             } elseif ($sActTag) {
                 // tag ?
                 $sListType = 'tag';
+                // END deprecated
             } elseif ($sActCat && $oProduct->isAssignedToCategory($sActCat)) {
                 // category ?
             } else {

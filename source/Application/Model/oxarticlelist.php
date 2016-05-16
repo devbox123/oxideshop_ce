@@ -177,6 +177,7 @@ class oxArticleList extends oxList
                 $sDescView = getViewName('oxartextends');
                 $sDescJoin = " LEFT JOIN $sDescView ON {$sDescView}.oxid={$sArticleTable}.oxid ";
             }
+            // END deprecated
         }
 
         // load the articles
@@ -307,6 +308,8 @@ class oxArticleList extends oxList
      * @param string $sTag  Searched tag
      * @param int    $iLang Active language
      *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
+     *             
      * @return int
      */
     public function loadTagArticles($sTag, $iLang)
@@ -348,6 +351,8 @@ class oxArticleList extends oxList
      *
      * @param string $sTag  current tag
      * @param int    $iLang active language
+     *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
      *
      * @return array
      */
@@ -775,13 +780,15 @@ class oxArticleList extends oxList
                     $sSearch .= ' or ';
                 }
 
+                // @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
                 // as long description now is on different table table must differ
                 if ($sField == 'oxlongdesc' || $sField == 'oxtags') {
                     $sSearchTable = getViewName('oxartextends');
                 } else {
                     $sSearchTable = $sArticleTable;
                 }
-
+                // END deprecated
+                
                 $sSearch .= $sSearchTable . '.' . $sField . ' like ' . $oDb->quote('%' . $sSearchString . '%') . ' ';
                 if ($sUml) {
                     $sSearch .= ' or ' . $sSearchTable . '.' . $sField . ' like ' . $oDb->quote('%' . $sUml . '%');

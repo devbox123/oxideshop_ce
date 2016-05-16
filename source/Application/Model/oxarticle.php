@@ -31,7 +31,7 @@ define('OXARTICLE_LINKTYPE_CATEGORY', 0);
 define('OXARTICLE_LINKTYPE_VENDOR', 1);
 define('OXARTICLE_LINKTYPE_MANUFACTURER', 2);
 define('OXARTICLE_LINKTYPE_PRICECATEGORY', 3);
-define('OXARTICLE_LINKTYPE_TAG', 4);
+define('OXARTICLE_LINKTYPE_TAG', 4); // @deprecated v5.3 (2016-05-04); Will be moved to own module.
 define('OXARTICLE_LINKTYPE_RECOMM', 5);
 
 /**
@@ -778,6 +778,17 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
     }
 
     /**
+     * Checks if price alarm is enabled.
+     *
+     * @return bool
+     */
+    public function isPriceAlarm()
+    {
+        // #419 disabling price alarm if article has fixed price
+        return !(isset($this->oxarticles__oxblfixedprice->value) && $this->oxarticles__oxblfixedprice->value);
+    }
+
+    /**
      * Get persistent parameters
      *
      * @deprecated on b-dev (2015-11-30); Not used anymore. Setting pers params to session was removed since 2.7.
@@ -840,7 +851,9 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
     {
         switch ($sFieldName) {
             case "oxlongdesc":
+            // @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
             case "oxtags":
+            // END deprecated
                 return true;
         }
 
@@ -1302,6 +1315,11 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
         // Performance
         $myConfig = $this->config;
         if (!$myConfig->getConfigParam('bl_perfLoadSimilar')) {
+            return;
+        }
+        
+        // Check configured number of similar products (bug #6062)
+        if($myConfig->getConfigParam('iNrofSimilarArticles') < 1) {
             return;
         }
 
@@ -2306,7 +2324,7 @@ class oxArticle extends oxI18n implements ArticleInterface, oxIUrl, ListArticleI
      */
     public function getCustomVAT()
     {
-        if (isset($this->oxarticles__oxvat->value)) {
+        if ($this->__isset('oxarticles__oxvat') || $this->__get('oxarticles__oxvat')) {
             return $this->oxarticles__oxvat->value;
         }
     }

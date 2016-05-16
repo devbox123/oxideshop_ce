@@ -4133,14 +4133,27 @@ class ArticleTest extends \OxidTestCase
 
     /**
      * Test get custom VAT.
-     *
-     * @return null
      */
     public function testGetCustomVAT()
     {
         $oArticle = $this->_createArticle('_testArt');
         $oArticle->oxarticles__oxvat = new oxField(7, oxField::T_RAW);
-        $this->assertEquals($oArticle->oxarticles__oxvat->value, $oArticle->getCustomVAT());
+        $this->assertEquals(7, $oArticle->getCustomVAT());
+    }
+
+    /**
+     * Test get custom VAT.
+     * From PHP 7.0.6 the way isset works changed. In previous versions when value is not set __get was being called.
+     */
+    public function testGetCustomVATWithLazyLoadedVat()
+    {
+        $oArticle = $this->_createArticle('_testArt');
+        $oArticle->oxarticles__oxvat = new oxField(7, oxField::T_RAW);
+        $oArticle->save();
+
+        $oArticle = oxNew('oxArticle');
+        $oArticle->load('_testArt');
+        $this->assertEquals(7, $oArticle->getCustomVAT());
     }
 
     /**
@@ -6825,8 +6838,10 @@ class ArticleTest extends \OxidTestCase
 
         $aQ[] = "CREATE TABLE oxartextends_set1 (OXID char(32) COLLATE latin1_general_ci NOT NULL, PRIMARY KEY (`OXID`)) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci";
         $aQ[] = "ALTER TABLE oxartextends_set1 ADD OXLONGDESC_5 text COLLATE latin1_general_ci NOT NULL";
+        // @deprecated v5.3 (2016-05-04); Will be moved to own module.
         $aQ[] = "ALTER TABLE oxartextends_set1 ADD OXTAGS_5 varchar(255) COLLATE latin1_general_ci NOT NULL";
-
+        // END deprecated
+        
         $aQ[] = "CREATE OR REPLACE SQL SECURITY INVOKER VIEW oxv_oxarticles_1_1 AS SELECT oxarticles.* FROM oxarticles";
         $aQ[] = "CREATE OR REPLACE SQL SECURITY INVOKER VIEW oxv_oxarticles_1_0 AS SELECT oxarticles.* FROM oxarticles";
         $aQ[] = "CREATE OR REPLACE SQL SECURITY INVOKER VIEW oxv_oxartextends_0 AS SELECT oxartextends.* FROM oxartextends";

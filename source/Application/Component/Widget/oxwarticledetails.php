@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with OXID eShop Community Edition.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @link      http://www.oxid-esales.com
+ * @link          http://www.oxid-esales.com
  * @copyright (C) OXID eSales AG 2003-2016
- * @version   OXID eShop CE
+ * @version       OXID eShop CE
  */
 use OxidEsales\Eshop\Application\Model\Article\ArticleList\Accessoires;
 use OxidEsales\Eshop\Application\Model\Article\ArticleList\CrossSelling;
@@ -28,6 +28,7 @@ use OxidEsales\Eshop\Application\Model\Article\ArticleList\History;
  */
 class oxwArticleDetails extends oxWidget
 {
+
     /**
      * List of article variants.
      *
@@ -65,6 +66,8 @@ class oxwArticleDetails extends oxWidget
 
     /**
      * If tags can be changed
+     *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
      *
      * @var bool
      */
@@ -308,6 +311,8 @@ class oxwArticleDetails extends oxWidget
     /**
      * Checks if rating functionality is on and allowed to user
      *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
+     *
      * @return bool
      */
     public function canChangeTags()
@@ -349,6 +354,8 @@ class oxwArticleDetails extends oxWidget
     /**
      * Returns tag cloud manager class
      *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
+     *             
      * @return oxTagCloud
      */
     public function getTagCloudManager()
@@ -367,6 +374,8 @@ class oxwArticleDetails extends oxWidget
     /**
      * Returns if tags can be changed, if user is logged in and
      * product exists.
+     *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
      *
      * @return bool
      */
@@ -395,8 +404,10 @@ class oxwArticleDetails extends oxWidget
                 $this->_iLinkType = OXARTICLE_LINKTYPE_VENDOR;
             } elseif ('manufacturer' == $sListType) {
                 $this->_iLinkType = OXARTICLE_LINKTYPE_MANUFACTURER;
+                // @deprecated v5.3 (2016-05-04); Will be moved to own module.
             } elseif ('tag' == $sListType) {
                 $this->_iLinkType = OXARTICLE_LINKTYPE_TAG;
+                // END deprecated
             } elseif ('recommlist' == $sListType) {
                 $this->_iLinkType = OXARTICLE_LINKTYPE_RECOMM;
             } else {
@@ -723,20 +734,13 @@ class oxwArticleDetails extends oxWidget
     }
 
     /**
-     * Template variable getter. Returns if price alarm is disabled
+     * Template variable getter. Returns if price alarm is enabled
      *
-     * @return object
+     * @return bool
      */
     public function isPriceAlarm()
     {
-        // #419 disabling price alarm if article has fixed price
-        $oProduct = $this->getProduct();
-        $sFixedPriceField = 'oxarticles__oxblfixedprice';
-        if (isset($oProduct->$sFixedPriceField->value) && $oProduct->$sFixedPriceField->value) {
-            return 0;
-        }
-
-        return 1;
+        return $this->getProduct()->isPriceAlarm();
     }
 
     /**
@@ -991,7 +995,6 @@ class oxwArticleDetails extends oxWidget
         $oLocator->setLocatorData($oProduct, $this);
 
         return $this->_sThisTemplate;
-
     }
 
     /**
@@ -1014,6 +1017,8 @@ class oxwArticleDetails extends oxWidget
 
     /**
      * Returns tag separator
+     *
+     * @deprecated v5.3 (2016-05-04); Tags will be moved to own module.
      *
      * @return string
      */
